@@ -11,18 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { DepositSlipForm } from "./forms/DepositSlipForm";
 import { HandoverForm } from "./forms/HandoverForm";
 import { InvoiceForm } from "./forms/InvoiceForm";
+import { ProcessedRecords } from "./ProcessedRecords";
 
 // Mock data for processed records
-const processedRecords = [
+const initialProcessedRecords = [
   {
     id: "1",
     branchName: "Main Branch",
@@ -48,22 +43,46 @@ const processedRecords = [
 export const AdminPanel = () => {
   const { toast } = useToast();
   const [selectedBranch, setSelectedBranch] = useState<string>("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [processedRecords, setProcessedRecords] = useState(initialProcessedRecords);
   
-  // Deposit Slip State
+  // Form States
   const [depositStatus, setDepositStatus] = useState<string>("");
   const [depositDate, setDepositDate] = useState<string>("");
   const [depositOdooSession, setDepositOdooSession] = useState<string>("");
   const [depositNotes, setDepositNotes] = useState<string>("");
   
-  // Handover Form State
   const [handoverStatus, setHandoverStatus] = useState<string>("");
   const [handoverDate, setHandoverDate] = useState<string>("");
   const [handoverOdooSession, setHandoverOdooSession] = useState<string>("");
   const [handoverNotes, setHandoverNotes] = useState<string>("");
   
-  // Invoice State
   const [invoiceStatus, setInvoiceStatus] = useState<string>("");
   const [invoiceDate, setInvoiceDate] = useState<string>("");
+
+  const handleEdit = (record: typeof initialProcessedRecords[0]) => {
+    setIsEditing(true);
+    setEditingId(record.id);
+    
+    // Find the branch by name and set it
+    const branch = branches.find(b => b.name === record.branchName);
+    if (branch) {
+      setSelectedBranch(branch.id);
+    }
+    
+    // Set all form values
+    setDepositDate(record.date);
+    setDepositOdooSession(record.depositOdooSession);
+    setDepositStatus(record.depositStatus.toLowerCase());
+    
+    setHandoverDate(record.date);
+    setHandoverOdooSession(record.handoverOdooSession);
+    setHandoverStatus(record.handoverStatus.toLowerCase());
+    
+    setInvoiceDate(record.date);
+    setInvoiceStatus(record.invoiceStatus.toLowerCase());
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,12 +96,54 @@ export const AdminPanel = () => {
       return;
     }
 
-    toast({
-      title: "Success",
-      description: "Records have been saved successfully.",
-    });
+    const selectedBranchData = branches.find(b => b.id === selectedBranch);
+    
+    if (isEditing && editingId) {
+      // Update existing record
+      setProcessedRecords(prev => prev.map(record => {
+        if (record.id === editingId) {
+          return {
+            ...record,
+            branchName: selectedBranchData?.name || "",
+            date: depositDate,
+            depositOdooSession,
+            handoverOdooSession,
+            depositStatus: depositStatus.charAt(0).toUpperCase() + depositStatus.slice(1),
+            handoverStatus: handoverStatus.charAt(0).toUpperCase() + handoverStatus.slice(1),
+            invoiceStatus: invoiceStatus.charAt(0).toUpperCase() + invoiceStatus.slice(1),
+          };
+        }
+        return record;
+      }));
+      
+      toast({
+        title: "Success",
+        description: "Record has been updated successfully.",
+      });
+    } else {
+      // Add new record
+      const newRecord = {
+        id: Date.now().toString(),
+        branchName: selectedBranchData?.name || "",
+        date: depositDate,
+        depositOdooSession,
+        handoverOdooSession,
+        depositStatus: depositStatus.charAt(0).toUpperCase() + depositStatus.slice(1),
+        handoverStatus: handoverStatus.charAt(0).toUpperCase() + handoverStatus.slice(1),
+        invoiceStatus: invoiceStatus.charAt(0).toUpperCase() + invoiceStatus.slice(1),
+      };
+      
+      setProcessedRecords(prev => [...prev, newRecord]);
+      
+      toast({
+        title: "Success",
+        description: "New record has been added successfully.",
+      });
+    }
 
     // Reset form
+    setIsEditing(false);
+    setEditingId(null);
     setSelectedBranch("");
     setDepositStatus("");
     setDepositDate("");
@@ -149,51 +210,16 @@ export const AdminPanel = () => {
             />
             
             <Button type="submit" className="w-full md:w-auto">
-              Save Records
+              {isEditing ? "Update Record" : "Save Record"}
             </Button>
           </form>
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">Processed Records</h2>
-          <Accordion type="single" collapsible className="w-full">
-            {processedRecords.map((record) => (
-              <AccordionItem key={record.id} value={record.id}>
-                <AccordionTrigger className="hover:no-underline">
-                  <div className="flex items-center justify-between w-full">
-                    <span>{record.branchName}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {record.date}
-                    </span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="text-sm font-medium">Deposit Slip</div>
-                      <div className="text-sm">
-                        Status: {record.depositStatus}
-                        <br />
-                        Odoo Session: {record.depositOdooSession}
-                      </div>
-                      
-                      <div className="text-sm font-medium">Handover</div>
-                      <div className="text-sm">
-                        Status: {record.handoverStatus}
-                        <br />
-                        Odoo Session: {record.handoverOdooSession}
-                      </div>
-                      
-                      <div className="text-sm font-medium">Invoice</div>
-                      <div className="text-sm">
-                        Status: {record.invoiceStatus}
-                      </div>
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <ProcessedRecords 
+            records={processedRecords} 
+            onEdit={handleEdit}
+          />
         </Card>
       </div>
     </div>
