@@ -30,18 +30,44 @@ export const BranchManagement = () => {
       return;
     }
 
-    addBranch(branchName.trim());
-    toast({
-      title: "Success",
-      description: "Branch added successfully",
-    });
+    if (editingBranch) {
+      // Update existing branch
+      const branchIndex = branches.findIndex(b => b.id === editingBranch.id);
+      if (branchIndex !== -1) {
+        branches[branchIndex].name = branchName.trim();
+        toast({
+          title: "Success",
+          description: "Branch updated successfully",
+        });
+        setEditingBranch(null);
+      }
+    } else {
+      // Add new branch
+      addBranch(branchName.trim());
+      toast({
+        title: "Success",
+        description: "Branch added successfully",
+      });
+    }
+    setBranchName("");
+  };
+
+  const handleEdit = (branch: { id: string; name: string }) => {
+    setEditingBranch(branch);
+    setBranchName(branch.name);
+  };
+
+  const handleCancel = () => {
+    setEditingBranch(null);
     setBranchName("");
   };
 
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Add New Branch</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {editingBranch ? "Edit Branch" : "Add New Branch"}
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="branchName">Branch Name</Label>
@@ -52,7 +78,16 @@ export const BranchManagement = () => {
               placeholder="Enter branch name"
             />
           </div>
-          <Button type="submit">Add Branch</Button>
+          <div className="flex gap-2">
+            <Button type="submit">
+              {editingBranch ? "Update Branch" : "Add Branch"}
+            </Button>
+            {editingBranch && (
+              <Button type="button" variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+            )}
+          </div>
         </form>
       </Card>
 
@@ -75,12 +110,7 @@ export const BranchManagement = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      toast({
-                        title: "Info",
-                        description: "Edit functionality will be implemented in the next iteration",
-                      });
-                    }}
+                    onClick={() => handleEdit(branch)}
                   >
                     Edit
                   </Button>
