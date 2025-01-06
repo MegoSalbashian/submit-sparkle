@@ -1,53 +1,55 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-
-const mockData = {
-  streak: 6,
-  longestStreak: 15,
-  totalSubmissions: 45,
-  approvedSubmissions: 42,
-  rejectedSubmissions: 3,
-  submissionHistory: [
-    { date: "Mon", submissions: 2 },
-    { date: "Tue", submissions: 2 },
-    { date: "Wed", submissions: 1 },
-    { date: "Thu", submissions: 2 },
-    { date: "Fri", submissions: 2 },
-    { date: "Sat", submissions: 1 },
-    { date: "Sun", submissions: 2 },
-  ],
-};
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { branches, generateMockData } from "@/data/mockData";
+import { StreakCounter } from "./StreakCounter";
+import { DateRangeSelector } from "./DateRangeSelector";
 
 export const ManagerDashboard = () => {
+  const [selectedBranch, setSelectedBranch] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<string>("7d");
+  
+  const mockData = generateMockData(selectedBranch);
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Manager Dashboard</h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <h1 className="text-3xl font-bold">Manager Dashboard</h1>
+        
+        <div className="flex gap-4">
+          <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Select branch" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Branches</SelectItem>
+              {branches.map((branch) => (
+                <SelectItem key={branch.id} value={branch.id}>
+                  {branch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <DateRangeSelector value={dateRange} onValueChange={setDateRange} />
+        </div>
+      </div>
       
-      <div className="stats-grid mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-2">Current Streak</h3>
-          <p className="streak-counter">{mockData.streak} days</p>
+          <h3 className="text-lg font-medium mb-4">Handover Streak</h3>
+          <StreakCounter value={mockData.streaks.handover} label="Days" type="handover" />
         </Card>
         
         <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-2">Longest Streak</h3>
-          <p className="streak-counter">{mockData.longestStreak} days</p>
+          <h3 className="text-lg font-medium mb-4">Deposits Streak</h3>
+          <StreakCounter value={mockData.streaks.deposits} label="Days" type="deposits" />
         </Card>
         
         <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-2">Success Rate</h3>
-          <p className="streak-counter">
-            {Math.round((mockData.approvedSubmissions / mockData.totalSubmissions) * 100)}%
-          </p>
+          <h3 className="text-lg font-medium mb-4">Invoice Streak</h3>
+          <StreakCounter value={mockData.streaks.invoices} label="Days" type="invoices" />
         </Card>
       </div>
       
@@ -60,38 +62,61 @@ export const ManagerDashboard = () => {
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
+              <Legend />
               <Line
                 type="monotone"
-                dataKey="submissions"
+                dataKey="handover"
                 stroke="hsl(var(--primary))"
                 strokeWidth={2}
+                name="Handover"
+              />
+              <Line
+                type="monotone"
+                dataKey="deposits"
+                stroke="hsl(var(--secondary))"
+                strokeWidth={2}
+                name="Deposits"
+              />
+              <Line
+                type="monotone"
+                dataKey="invoices"
+                stroke="hsl(var(--destructive))"
+                strokeWidth={2}
+                name="Invoices"
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Card>
       
-      <Card className="dashboard-card">
-        <h3 className="text-lg font-medium mb-4">Performance Summary</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Total Submissions</p>
-            <p className="text-2xl font-semibold">{mockData.totalSubmissions}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="dashboard-card">
+          <h3 className="text-lg font-medium mb-4">Handover Performance</h3>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.handover}</p>
+            <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.handover}</p>
+            <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.handover}</p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Approved</p>
-            <p className="text-2xl font-semibold text-secondary">
-              {mockData.approvedSubmissions}
-            </p>
+        </Card>
+        
+        <Card className="dashboard-card">
+          <h3 className="text-lg font-medium mb-4">Deposits Performance</h3>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.deposits}</p>
+            <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.deposits}</p>
+            <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.deposits}</p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Rejected</p>
-            <p className="text-2xl font-semibold text-destructive">
-              {mockData.rejectedSubmissions}
-            </p>
+        </Card>
+        
+        <Card className="dashboard-card">
+          <h3 className="text-lg font-medium mb-4">Invoice Performance</h3>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.invoices}</p>
+            <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.invoices}</p>
+            <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.invoices}</p>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
