@@ -10,28 +10,8 @@ import {
 import { BranchManagement } from "./BranchManagement";
 import { RecordsTab } from "./admin/RecordsTab";
 
-const initialProcessedRecords = [
-  {
-    id: "1",
-    branchName: "Main Branch",
-    date: "2024-03-20",
-    depositOdooSession: "DS001",
-    handoverOdooSession: "HO001",
-    depositStatus: "Approved",
-    handoverStatus: "Approved",
-    invoiceStatus: "Approved",
-  },
-  {
-    id: "2",
-    branchName: "Downtown",
-    date: "2024-03-19",
-    depositOdooSession: "DS002",
-    handoverOdooSession: "HO002",
-    depositStatus: "Pending",
-    handoverStatus: "Approved",
-    invoiceStatus: "Missing invoices",
-  },
-];
+// Starting with an empty array of records
+const initialProcessedRecords: any[] = [];
 
 export const AdminPanel = () => {
   const [selectedBranch, setSelectedBranch] = useState<string>("");
@@ -39,7 +19,6 @@ export const AdminPanel = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [processedRecords, setProcessedRecords] = useState(initialProcessedRecords);
   
-  // Form States
   const [depositStatus, setDepositStatus] = useState<string>("");
   const [depositDate, setDepositDate] = useState<string>("");
   const [depositOdooSession, setDepositOdooSession] = useState<string>("");
@@ -52,7 +31,7 @@ export const AdminPanel = () => {
   
   const [invoiceStatus, setInvoiceStatus] = useState<string>("");
   const [invoiceDate, setInvoiceDate] = useState<string>("");
-
+  
   const handleEdit = (record: typeof initialProcessedRecords[0]) => {
     setIsEditing(true);
     setEditingId(record.id);
