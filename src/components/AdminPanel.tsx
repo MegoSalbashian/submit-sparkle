@@ -30,11 +30,9 @@ export const AdminPanel = () => {
   const [handoverOdooSession, setHandoverOdooSession] = useState<string>("");
   const [handoverNotes, setHandoverNotes] = useState<string>("");
   
-  // Invoice State
+  // Invoice State - Modified to remove Odoo session
   const [invoiceStatus, setInvoiceStatus] = useState<string>("");
   const [invoiceDate, setInvoiceDate] = useState<string>("");
-  const [invoiceOdooSession, setInvoiceOdooSession] = useState<string>("");
-  const [invoiceNotes, setInvoiceNotes] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,8 +65,6 @@ export const AdminPanel = () => {
     setHandoverNotes("");
     setInvoiceStatus("");
     setInvoiceDate("");
-    setInvoiceOdooSession("");
-    setInvoiceNotes("");
   };
 
   return (
@@ -191,7 +187,7 @@ export const AdminPanel = () => {
             </div>
           </div>
 
-          {/* Invoice Section */}
+          {/* Invoice Section - Modified */}
           <div className="border-t pt-6">
             <h2 className="text-xl font-semibold mb-4">Invoice</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -205,15 +201,6 @@ export const AdminPanel = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="invoiceOdooSession">Odoo Session Number</Label>
-                <Input
-                  id="invoiceOdooSession"
-                  placeholder="Enter Odoo session number"
-                  value={invoiceOdooSession}
-                  onChange={(e) => setInvoiceOdooSession(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="invoiceStatus">Status</Label>
                 <Select value={invoiceStatus} onValueChange={setInvoiceStatus}>
                   <SelectTrigger>
@@ -221,22 +208,10 @@ export const AdminPanel = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="missing">Missing invoices</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {(invoiceStatus === "pending" || invoiceStatus === "rejected") && (
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="invoiceNotes">Notes</Label>
-                  <Textarea
-                    id="invoiceNotes"
-                    placeholder="Enter reason for pending/rejected status"
-                    value={invoiceNotes}
-                    onChange={(e) => setInvoiceNotes(e.target.value)}
-                  />
-                </div>
-              )}
             </div>
           </div>
           
