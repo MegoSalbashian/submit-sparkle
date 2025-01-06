@@ -20,6 +20,11 @@ export let branches: Branch[] = [
 ];
 
 export const addBranch = (name: string) => {
+  // Check if branch name already exists
+  if (branches.some(branch => branch.name.toLowerCase() === name.toLowerCase())) {
+    throw new Error("Branch with this name already exists");
+  }
+
   const maxId = Math.max(...branches.map(branch => parseInt(branch.id)));
   const newBranch = {
     id: (maxId + 1).toString(),
