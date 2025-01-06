@@ -12,13 +12,18 @@ export const ManagerDashboard = () => {
   
   const mockData = generateMockData(selectedBranch);
 
+  const handleBranchChange = (value: string) => {
+    setSelectedBranch(value);
+    console.log("Selected branch:", value); // Debug log
+  };
+
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold">Manager Dashboard</h1>
         
         <div className="flex gap-4">
-          <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+          <Select value={selectedBranch} onValueChange={handleBranchChange}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select branch" />
             </SelectTrigger>
@@ -39,17 +44,32 @@ export const ManagerDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="dashboard-card">
           <h3 className="text-lg font-medium mb-4">Handover Streak</h3>
-          <StreakCounter value={mockData.streaks.handover} label="Days" type="handover" />
+          <StreakCounter 
+            value={mockData.streaks.handover} 
+            longestStreak={mockData.longestStreaks.handover}
+            label="Days" 
+            type="handover" 
+          />
         </Card>
         
         <Card className="dashboard-card">
           <h3 className="text-lg font-medium mb-4">Deposits Streak</h3>
-          <StreakCounter value={mockData.streaks.deposits} label="Days" type="deposits" />
+          <StreakCounter 
+            value={mockData.streaks.deposits} 
+            longestStreak={mockData.longestStreaks.deposits}
+            label="Days" 
+            type="deposits" 
+          />
         </Card>
         
         <Card className="dashboard-card">
           <h3 className="text-lg font-medium mb-4">Invoice Streak</h3>
-          <StreakCounter value={mockData.streaks.invoices} label="Days" type="invoices" />
+          <StreakCounter 
+            value={mockData.streaks.invoices} 
+            longestStreak={mockData.longestStreaks.invoices}
+            label="Days" 
+            type="invoices" 
+          />
         </Card>
       </div>
       
