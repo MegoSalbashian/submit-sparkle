@@ -12,15 +12,17 @@ export type StreakData = {
 export type SubmissionType = keyof StreakData;
 
 export let branches: Branch[] = [
-  { id: "1", name: "Main Branch" },
-  { id: "2", name: "Downtown" },
-  { id: "3", name: "Airport" },
-  { id: "4", name: "Mall" },
+  { id: "1", name: "Abdoun" },
+  { id: "2", name: "Abdali" },
+  { id: "3", name: "7th Circle" },
+  { id: "4", name: "Yasmeen" },
+  { id: "5", name: "Abdoun Circle" }
 ];
 
 export const addBranch = (name: string) => {
+  const maxId = Math.max(...branches.map(branch => parseInt(branch.id)));
   const newBranch = {
-    id: (branches.length + 1).toString(),
+    id: (maxId + 1).toString(),
     name,
   };
   branches = [...branches, newBranch];
