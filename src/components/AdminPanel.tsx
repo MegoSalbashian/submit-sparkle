@@ -15,7 +15,7 @@ import { DepositSlipForm } from "./forms/DepositSlipForm";
 import { HandoverForm } from "./forms/HandoverForm";
 import { InvoiceForm } from "./forms/InvoiceForm";
 import { ProcessedRecords } from "./ProcessedRecords";
-import { AddBranchForm } from "./forms/AddBranchForm";
+import { BranchManagement } from "./BranchManagement";
 
 const initialProcessedRecords = [
   {
@@ -163,8 +163,8 @@ export const AdminPanel = () => {
       
       <div className="space-y-8">
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Add New Branch</h2>
-          <AddBranchForm />
+          <h2 className="text-xl font-semibold mb-4">Branch Management</h2>
+          <BranchManagement />
         </Card>
 
         <Card className="p-6">
