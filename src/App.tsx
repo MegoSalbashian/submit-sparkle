@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { AdminPanel } from "./components/AdminPanel";
 import { ManagerDashboard } from "./components/ManagerDashboard";
+import { PasswordProtected } from "./components/PasswordProtected";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +36,7 @@ const App = () => (
           </div>
         </nav>
         <Routes>
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin" element={<PasswordProtected><AdminPanel /></PasswordProtected>} />
           <Route path="/dashboard" element={<ManagerDashboard />} />
           <Route path="/" element={<ManagerDashboard />} />
         </Routes>
