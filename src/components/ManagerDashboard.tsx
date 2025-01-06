@@ -10,11 +10,16 @@ export const ManagerDashboard = () => {
   const [selectedBranch, setSelectedBranch] = useState<string>("all");
   const [dateRange, setDateRange] = useState<string>("7d");
   
-  const mockData = generateMockData(selectedBranch);
+  const mockData = generateMockData(selectedBranch, dateRange);
 
   const handleBranchChange = (value: string) => {
     setSelectedBranch(value);
-    console.log("Selected branch:", value); // Debug log
+    console.log("Selected branch:", value);
+  };
+
+  const handleDateRangeChange = (value: string) => {
+    setDateRange(value);
+    console.log("Selected date range:", value);
   };
 
   return (
@@ -37,7 +42,7 @@ export const ManagerDashboard = () => {
             </SelectContent>
           </Select>
           
-          <DateRangeSelector value={dateRange} onValueChange={setDateRange} />
+          <DateRangeSelector value={dateRange} onValueChange={handleDateRangeChange} />
         </div>
       </div>
       
@@ -75,7 +80,7 @@ export const ManagerDashboard = () => {
       
       <Card className="dashboard-card mb-8">
         <h3 className="text-lg font-medium mb-4">Submission History</h3>
-        <div className="chart-container">
+        <div className="chart-container" style={{ height: "400px" }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mockData.submissionHistory}>
               <CartesianGrid strokeDasharray="3 3" />

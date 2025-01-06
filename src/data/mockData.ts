@@ -37,7 +37,24 @@ const branchData = {
   },
 };
 
-export const generateMockData = (branchId: string) => {
+const getDateRangeMultiplier = (dateRange: string) => {
+  switch (dateRange) {
+    case "7d":
+      return 1;
+    case "30d":
+      return 4;
+    case "90d":
+      return 12;
+    case "all":
+      return 24;
+    default:
+      return 1;
+  }
+};
+
+export const generateMockData = (branchId: string, dateRange: string = "7d") => {
+  const multiplier = getDateRangeMultiplier(dateRange);
+  
   // If a specific branch is selected, return that branch's data
   if (branchId !== "all" && branchData[branchId as keyof typeof branchData]) {
     const data = branchData[branchId as keyof typeof branchData];
@@ -45,19 +62,19 @@ export const generateMockData = (branchId: string) => {
       streaks: data.streaks,
       longestStreaks: data.longestStreaks,
       totalSubmissions: {
-        handover: 145,
-        deposits: 132,
-        invoices: 128,
+        handover: 145 * multiplier,
+        deposits: 132 * multiplier,
+        invoices: 128 * multiplier,
       },
       approvedSubmissions: {
-        handover: 138,
-        deposits: 125,
-        invoices: 120,
+        handover: 138 * multiplier,
+        deposits: 125 * multiplier,
+        invoices: 120 * multiplier,
       },
       rejectedSubmissions: {
-        handover: 7,
-        deposits: 7,
-        invoices: 8,
+        handover: 7 * multiplier,
+        deposits: 7 * multiplier,
+        invoices: 8 * multiplier,
       },
       submissionHistory: [
         { date: "Mon", handover: 12, deposits: 10, invoices: 11 },
@@ -84,19 +101,19 @@ export const generateMockData = (branchId: string) => {
       invoices: 20,
     },
     totalSubmissions: {
-      handover: 580,
-      deposits: 528,
-      invoices: 512,
+      handover: 580 * multiplier,
+      deposits: 528 * multiplier,
+      invoices: 512 * multiplier,
     },
     approvedSubmissions: {
-      handover: 552,
-      deposits: 500,
-      invoices: 480,
+      handover: 552 * multiplier,
+      deposits: 500 * multiplier,
+      invoices: 480 * multiplier,
     },
     rejectedSubmissions: {
-      handover: 28,
-      deposits: 28,
-      invoices: 32,
+      handover: 28 * multiplier,
+      deposits: 28 * multiplier,
+      invoices: 32 * multiplier,
     },
     submissionHistory: [
       { date: "Mon", handover: 48, deposits: 40, invoices: 44 },
