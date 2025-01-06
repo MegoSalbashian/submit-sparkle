@@ -21,9 +21,9 @@ const App = () => (
               <div className="flex items-center">
                 <Link to="/" className="flex-shrink-0 flex items-center">
                   <img
-                    src="placeholder.svg"
-                    alt="Company Logo"
-                    className="h-8 w-auto"
+                    src="/lovable-uploads/993f898e-65f7-44ff-bfe9-ce51d65a43e4.png"
+                    alt="BLK Logo"
+                    className="h-12 w-auto"
                   />
                 </Link>
                 <div className="ml-6 flex space-x-4">
