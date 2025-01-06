@@ -11,6 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { DepositSlipForm } from "./forms/DepositSlipForm";
 import { HandoverForm } from "./forms/HandoverForm";
 import { InvoiceForm } from "./forms/InvoiceForm";
@@ -161,72 +167,82 @@ export const AdminPanel = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
       
-      <div className="space-y-8">
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Branch Management</h2>
-          <BranchManagement />
-        </Card>
+      <Tabs defaultValue="records" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="records">Records</TabsTrigger>
+          <TabsTrigger value="branches">Branch Management</TabsTrigger>
+        </TabsList>
 
-        <Card className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-2">
-              <Label htmlFor="branch">Branch</Label>
-              <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id}>
-                      {branch.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <TabsContent value="branches">
+          <Card className="p-6">
+            <BranchManagement />
+          </Card>
+        </TabsContent>
 
-            <DepositSlipForm
-              depositDate={depositDate}
-              setDepositDate={setDepositDate}
-              depositOdooSession={depositOdooSession}
-              setDepositOdooSession={setDepositOdooSession}
-              depositStatus={depositStatus}
-              setDepositStatus={setDepositStatus}
-              depositNotes={depositNotes}
-              setDepositNotes={setDepositNotes}
-            />
+        <TabsContent value="records">
+          <div className="space-y-8">
+            <Card className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="space-y-2">
+                  <Label htmlFor="branch">Branch</Label>
+                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id}>
+                          {branch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <HandoverForm
-              handoverDate={handoverDate}
-              setHandoverDate={setHandoverDate}
-              handoverOdooSession={handoverOdooSession}
-              setHandoverOdooSession={setHandoverOdooSession}
-              handoverStatus={handoverStatus}
-              setHandoverStatus={setHandoverStatus}
-              handoverNotes={handoverNotes}
-              setHandoverNotes={setHandoverNotes}
-            />
+                <DepositSlipForm
+                  depositDate={depositDate}
+                  setDepositDate={setDepositDate}
+                  depositOdooSession={depositOdooSession}
+                  setDepositOdooSession={setDepositOdooSession}
+                  depositStatus={depositStatus}
+                  setDepositStatus={setDepositStatus}
+                  depositNotes={depositNotes}
+                  setDepositNotes={setDepositNotes}
+                />
 
-            <InvoiceForm
-              invoiceDate={invoiceDate}
-              setInvoiceDate={setInvoiceDate}
-              invoiceStatus={invoiceStatus}
-              setInvoiceStatus={setInvoiceStatus}
-            />
-            
-            <Button type="submit" className="w-full md:w-auto">
-              {isEditing ? "Update Record" : "Save Record"}
-            </Button>
-          </form>
-        </Card>
+                <HandoverForm
+                  handoverDate={handoverDate}
+                  setHandoverDate={setHandoverDate}
+                  handoverOdooSession={handoverOdooSession}
+                  setHandoverOdooSession={setHandoverOdooSession}
+                  handoverStatus={handoverStatus}
+                  setHandoverStatus={setHandoverStatus}
+                  handoverNotes={handoverNotes}
+                  setHandoverNotes={setHandoverNotes}
+                />
 
-        <Card className="p-6">
-          <ProcessedRecords 
-            records={processedRecords} 
-            onEdit={handleEdit}
-          />
-        </Card>
-      </div>
+                <InvoiceForm
+                  invoiceDate={invoiceDate}
+                  setInvoiceDate={setInvoiceDate}
+                  invoiceStatus={invoiceStatus}
+                  setInvoiceStatus={setInvoiceStatus}
+                />
+                
+                <Button type="submit" className="w-full md:w-auto">
+                  {isEditing ? "Update Record" : "Save Record"}
+                </Button>
+              </form>
+            </Card>
+
+            <Card className="p-6">
+              <ProcessedRecords 
+                records={processedRecords} 
+                onEdit={handleEdit}
+              />
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
