@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { branches } from "@/data/mockData";
 import {
   Select,
   SelectContent,
@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { branches } from "@/data/mockData";
+import { DepositSlipForm } from "./forms/DepositSlipForm";
+import { HandoverForm } from "./forms/HandoverForm";
+import { InvoiceForm } from "./forms/InvoiceForm";
 
 export const AdminPanel = () => {
   const { toast } = useToast();
@@ -30,14 +31,13 @@ export const AdminPanel = () => {
   const [handoverOdooSession, setHandoverOdooSession] = useState<string>("");
   const [handoverNotes, setHandoverNotes] = useState<string>("");
   
-  // Invoice State - Modified to remove Odoo session
+  // Invoice State
   const [invoiceStatus, setInvoiceStatus] = useState<string>("");
   const [invoiceDate, setInvoiceDate] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
     if (!selectedBranch) {
       toast({
         title: "Error",
@@ -47,7 +47,6 @@ export const AdminPanel = () => {
       return;
     }
 
-    // In a real application, this would update a database
     toast({
       title: "Success",
       description: "Records have been saved successfully.",
@@ -89,131 +88,34 @@ export const AdminPanel = () => {
             </Select>
           </div>
 
-          {/* Deposit Slip Section */}
-          <div className="border-t pt-6">
-            <h2 className="text-xl font-semibold mb-4">Deposit Slip</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="depositDate">Date</Label>
-                <Input
-                  type="date"
-                  id="depositDate"
-                  value={depositDate}
-                  onChange={(e) => setDepositDate(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="depositOdooSession">Odoo Session Number</Label>
-                <Input
-                  id="depositOdooSession"
-                  placeholder="Enter Odoo session number"
-                  value={depositOdooSession}
-                  onChange={(e) => setDepositOdooSession(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="depositStatus">Status</Label>
-                <Select value={depositStatus} onValueChange={setDepositStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {(depositStatus === "pending" || depositStatus === "rejected") && (
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="depositNotes">Notes</Label>
-                  <Textarea
-                    id="depositNotes"
-                    placeholder="Enter reason for pending/rejected status"
-                    value={depositNotes}
-                    onChange={(e) => setDepositNotes(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+          <DepositSlipForm
+            depositDate={depositDate}
+            setDepositDate={setDepositDate}
+            depositOdooSession={depositOdooSession}
+            setDepositOdooSession={setDepositOdooSession}
+            depositStatus={depositStatus}
+            setDepositStatus={setDepositStatus}
+            depositNotes={depositNotes}
+            setDepositNotes={setDepositNotes}
+          />
 
-          {/* Handover Form Section */}
-          <div className="border-t pt-6">
-            <h2 className="text-xl font-semibold mb-4">Handover Form</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="handoverDate">Date</Label>
-                <Input
-                  type="date"
-                  id="handoverDate"
-                  value={handoverDate}
-                  onChange={(e) => setHandoverDate(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="handoverOdooSession">Odoo Session Number</Label>
-                <Input
-                  id="handoverOdooSession"
-                  placeholder="Enter Odoo session number"
-                  value={handoverOdooSession}
-                  onChange={(e) => setHandoverOdooSession(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="handoverStatus">Status</Label>
-                <Select value={handoverStatus} onValueChange={setHandoverStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {(handoverStatus === "pending" || handoverStatus === "rejected") && (
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="handoverNotes">Notes</Label>
-                  <Textarea
-                    id="handoverNotes"
-                    placeholder="Enter reason for pending/rejected status"
-                    value={handoverNotes}
-                    onChange={(e) => setHandoverNotes(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+          <HandoverForm
+            handoverDate={handoverDate}
+            setHandoverDate={setHandoverDate}
+            handoverOdooSession={handoverOdooSession}
+            setHandoverOdooSession={setHandoverOdooSession}
+            handoverStatus={handoverStatus}
+            setHandoverStatus={setHandoverStatus}
+            handoverNotes={handoverNotes}
+            setHandoverNotes={setHandoverNotes}
+          />
 
-          {/* Invoice Section - Modified */}
-          <div className="border-t pt-6">
-            <h2 className="text-xl font-semibold mb-4">Invoice</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="invoiceDate">Date</Label>
-                <Input
-                  type="date"
-                  id="invoiceDate"
-                  value={invoiceDate}
-                  onChange={(e) => setInvoiceDate(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="invoiceStatus">Status</Label>
-                <Select value={invoiceStatus} onValueChange={setInvoiceStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="missing">Missing invoices</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
+          <InvoiceForm
+            invoiceDate={invoiceDate}
+            setInvoiceDate={setInvoiceDate}
+            invoiceStatus={invoiceStatus}
+            setInvoiceStatus={setInvoiceStatus}
+          />
           
           <Button type="submit" className="w-full md:w-auto">
             Save Records
