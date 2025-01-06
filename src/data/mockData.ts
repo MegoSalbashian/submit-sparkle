@@ -11,12 +11,21 @@ export type StreakData = {
 
 export type SubmissionType = keyof StreakData;
 
-export const branches: Branch[] = [
+export let branches: Branch[] = [
   { id: "1", name: "Main Branch" },
   { id: "2", name: "Downtown" },
   { id: "3", name: "Airport" },
   { id: "4", name: "Mall" },
 ];
+
+export const addBranch = (name: string) => {
+  const newBranch = {
+    id: (branches.length + 1).toString(),
+    name,
+  };
+  branches = [...branches, newBranch];
+  return newBranch;
+};
 
 const branchData = {
   "1": {

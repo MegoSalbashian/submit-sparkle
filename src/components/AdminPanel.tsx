@@ -15,8 +15,8 @@ import { DepositSlipForm } from "./forms/DepositSlipForm";
 import { HandoverForm } from "./forms/HandoverForm";
 import { InvoiceForm } from "./forms/InvoiceForm";
 import { ProcessedRecords } from "./ProcessedRecords";
+import { AddBranchForm } from "./forms/AddBranchForm";
 
-// Mock data for processed records
 const initialProcessedRecords = [
   {
     id: "1",
@@ -162,6 +162,11 @@ export const AdminPanel = () => {
       <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
       
       <div className="space-y-8">
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Add New Branch</h2>
+          <AddBranchForm />
+        </Card>
+
         <Card className="p-6">
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-2">
