@@ -15,13 +15,13 @@ import {
 } from "@/components/ui/table";
 
 export const BranchManagement = () => {
-  const [branchName, setBranchName] = useState("");
-  const [editingBranch, setEditingBranch] = useState<{ id: string; name: string } | null>(null);
+  const [newBranchName, setNewBranchName] = useState("");
+  const [editingBranch, setEditingBranch] = useState<{ id: string; name: string; editedName: string } | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleAddBranch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!branchName.trim()) {
+    if (!newBranchName.trim()) {
       toast({
         title: "Error",
         description: "Branch name is required",
@@ -30,64 +30,60 @@ export const BranchManagement = () => {
       return;
     }
 
-    if (editingBranch) {
-      // Update existing branch
-      const branchIndex = branches.findIndex(b => b.id === editingBranch.id);
-      if (branchIndex !== -1) {
-        branches[branchIndex].name = branchName.trim();
-        toast({
-          title: "Success",
-          description: "Branch updated successfully",
-        });
-        setEditingBranch(null);
-      }
-    } else {
-      // Add new branch
-      addBranch(branchName.trim());
-      toast({
-        title: "Success",
-        description: "Branch added successfully",
-      });
-    }
-    setBranchName("");
+    addBranch(newBranchName.trim());
+    toast({
+      title: "Success",
+      description: "Branch added successfully",
+    });
+    setNewBranchName("");
   };
 
   const handleEdit = (branch: { id: string; name: string }) => {
-    setEditingBranch(branch);
-    setBranchName(branch.name);
+    setEditingBranch({ ...branch, editedName: branch.name });
   };
 
-  const handleCancel = () => {
+  const handleCancelEdit = () => {
     setEditingBranch(null);
-    setBranchName("");
+  };
+
+  const handleUpdateBranch = (branch: { id: string; name: string; editedName: string }) => {
+    const branchIndex = branches.findIndex(b => b.id === branch.id);
+    if (branchIndex !== -1) {
+      branches[branchIndex].name = branch.editedName.trim();
+      toast({
+        title: "Success",
+        description: "Branch updated successfully",
+      });
+      setEditingBranch(null);
+    }
+  };
+
+  const handleDeleteBranch = (branchId: string) => {
+    const branchIndex = branches.findIndex(b => b.id === branchId);
+    if (branchIndex !== -1) {
+      branches.splice(branchIndex, 1);
+      toast({
+        title: "Success",
+        description: "Branch deleted successfully",
+      });
+    }
   };
 
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">
-          {editingBranch ? "Edit Branch" : "Add New Branch"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-xl font-semibold mb-4">Add New Branch</h2>
+        <form onSubmit={handleAddBranch} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="branchName">Branch Name</Label>
+            <Label htmlFor="newBranchName">Branch Name</Label>
             <Input
-              id="branchName"
-              value={branchName}
-              onChange={(e) => setBranchName(e.target.value)}
+              id="newBranchName"
+              value={newBranchName}
+              onChange={(e) => setNewBranchName(e.target.value)}
               placeholder="Enter branch name"
             />
           </div>
-          <div className="flex gap-2">
-            <Button type="submit">
-              {editingBranch ? "Update Branch" : "Add Branch"}
-            </Button>
-            {editingBranch && (
-              <Button type="button" variant="outline" onClick={handleCancel}>
-                Cancel
-              </Button>
-            )}
-          </div>
+          <Button type="submit">Add Branch</Button>
         </form>
       </Card>
 
@@ -105,15 +101,54 @@ export const BranchManagement = () => {
             {branches.map((branch) => (
               <TableRow key={branch.id}>
                 <TableCell>{branch.id}</TableCell>
-                <TableCell>{branch.name}</TableCell>
+                <TableCell>
+                  {editingBranch?.id === branch.id ? (
+                    <Input
+                      value={editingBranch.editedName}
+                      onChange={(e) => setEditingBranch({ ...editingBranch, editedName: e.target.value })}
+                    />
+                  ) : (
+                    branch.name
+                  )}
+                </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(branch)}
-                  >
-                    Edit
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    {editingBranch?.id === branch.id ? (
+                      <>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleUpdateBranch(editingBranch)}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCancelEdit}
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(branch)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteBranch(branch.id)}
+                        >
+                          Delete
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
