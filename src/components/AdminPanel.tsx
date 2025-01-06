@@ -1,27 +1,14 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { branches } from "@/data/mockData";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { DepositSlipForm } from "./forms/DepositSlipForm";
-import { HandoverForm } from "./forms/HandoverForm";
-import { InvoiceForm } from "./forms/InvoiceForm";
-import { ProcessedRecords } from "./ProcessedRecords";
 import { BranchManagement } from "./BranchManagement";
+import { RecordsTab } from "./admin/RecordsTab";
 
 const initialProcessedRecords = [
   {
@@ -47,7 +34,6 @@ const initialProcessedRecords = [
 ];
 
 export const AdminPanel = () => {
-  const { toast } = useToast();
   const [selectedBranch, setSelectedBranch] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -71,13 +57,11 @@ export const AdminPanel = () => {
     setIsEditing(true);
     setEditingId(record.id);
     
-    // Find the branch by name and set it
     const branch = branches.find(b => b.name === record.branchName);
     if (branch) {
       setSelectedBranch(branch.id);
     }
     
-    // Set all form values
     setDepositDate(record.date);
     setDepositOdooSession(record.depositOdooSession);
     setDepositStatus(record.depositStatus.toLowerCase());
@@ -94,18 +78,12 @@ export const AdminPanel = () => {
     e.preventDefault();
     
     if (!selectedBranch) {
-      toast({
-        title: "Error",
-        description: "Please select a branch.",
-        variant: "destructive",
-      });
       return;
     }
 
     const selectedBranchData = branches.find(b => b.id === selectedBranch);
     
     if (isEditing && editingId) {
-      // Update existing record
       setProcessedRecords(prev => prev.map(record => {
         if (record.id === editingId) {
           return {
@@ -121,13 +99,7 @@ export const AdminPanel = () => {
         }
         return record;
       }));
-      
-      toast({
-        title: "Success",
-        description: "Record has been updated successfully.",
-      });
     } else {
-      // Add new record
       const newRecord = {
         id: Date.now().toString(),
         branchName: selectedBranchData?.name || "",
@@ -140,11 +112,6 @@ export const AdminPanel = () => {
       };
       
       setProcessedRecords(prev => [...prev, newRecord]);
-      
-      toast({
-        title: "Success",
-        description: "New record has been added successfully.",
-      });
     }
 
     // Reset form
@@ -180,67 +147,34 @@ export const AdminPanel = () => {
         </TabsContent>
 
         <TabsContent value="records">
-          <div className="space-y-8">
-            <Card className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-8">
-                <div className="space-y-2">
-                  <Label htmlFor="branch">Branch</Label>
-                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {branches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <DepositSlipForm
-                  depositDate={depositDate}
-                  setDepositDate={setDepositDate}
-                  depositOdooSession={depositOdooSession}
-                  setDepositOdooSession={setDepositOdooSession}
-                  depositStatus={depositStatus}
-                  setDepositStatus={setDepositStatus}
-                  depositNotes={depositNotes}
-                  setDepositNotes={setDepositNotes}
-                />
-
-                <HandoverForm
-                  handoverDate={handoverDate}
-                  setHandoverDate={setHandoverDate}
-                  handoverOdooSession={handoverOdooSession}
-                  setHandoverOdooSession={setHandoverOdooSession}
-                  handoverStatus={handoverStatus}
-                  setHandoverStatus={setHandoverStatus}
-                  handoverNotes={handoverNotes}
-                  setHandoverNotes={setHandoverNotes}
-                />
-
-                <InvoiceForm
-                  invoiceDate={invoiceDate}
-                  setInvoiceDate={setInvoiceDate}
-                  invoiceStatus={invoiceStatus}
-                  setInvoiceStatus={setInvoiceStatus}
-                />
-                
-                <Button type="submit" className="w-full md:w-auto">
-                  {isEditing ? "Update Record" : "Save Record"}
-                </Button>
-              </form>
-            </Card>
-
-            <Card className="p-6">
-              <ProcessedRecords 
-                records={processedRecords} 
-                onEdit={handleEdit}
-              />
-            </Card>
-          </div>
+          <RecordsTab
+            selectedBranch={selectedBranch}
+            setSelectedBranch={setSelectedBranch}
+            isEditing={isEditing}
+            depositDate={depositDate}
+            setDepositDate={setDepositDate}
+            depositOdooSession={depositOdooSession}
+            setDepositOdooSession={setDepositOdooSession}
+            depositStatus={depositStatus}
+            setDepositStatus={setDepositStatus}
+            depositNotes={depositNotes}
+            setDepositNotes={setDepositNotes}
+            handoverDate={handoverDate}
+            setHandoverDate={setHandoverDate}
+            handoverOdooSession={handoverOdooSession}
+            setHandoverOdooSession={setHandoverOdooSession}
+            handoverStatus={handoverStatus}
+            setHandoverStatus={setHandoverStatus}
+            handoverNotes={handoverNotes}
+            setHandoverNotes={setHandoverNotes}
+            invoiceDate={invoiceDate}
+            setInvoiceDate={setInvoiceDate}
+            invoiceStatus={invoiceStatus}
+            setInvoiceStatus={setInvoiceStatus}
+            processedRecords={processedRecords}
+            onEdit={handleEdit}
+            onSubmit={handleSubmit}
+          />
         </TabsContent>
       </Tabs>
     </div>
