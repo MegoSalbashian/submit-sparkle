@@ -56,6 +56,14 @@ export const AdminPanel = () => {
     setInvoiceStatus(record.invoiceStatus.toLowerCase());
   };
 
+  const handleDelete = (recordId: string) => {
+    setProcessedRecords(prev => prev.filter(record => record.id !== recordId));
+    toast({
+      title: "Success",
+      description: "Record deleted successfully",
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -168,6 +176,7 @@ export const AdminPanel = () => {
             setInvoiceStatus={setInvoiceStatus}
             processedRecords={processedRecords}
             onEdit={handleEdit}
+            onDelete={handleDelete}
             onSubmit={handleSubmit}
           />
         </TabsContent>
