@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/tabs";
 import { BranchManagement } from "./BranchManagement";
 import { RecordsTab } from "./admin/RecordsTab";
+import { useToast } from "@/hooks/use-toast";
 
 // Starting with an empty array of records
 const initialProcessedRecords: any[] = [];
@@ -31,6 +32,8 @@ export const AdminPanel = () => {
   
   const [invoiceStatus, setInvoiceStatus] = useState<string>("");
   const [invoiceDate, setInvoiceDate] = useState<string>("");
+
+  const { toast } = useToast();
   
   const handleEdit = (record: typeof initialProcessedRecords[0]) => {
     setIsEditing(true);
@@ -57,6 +60,11 @@ export const AdminPanel = () => {
     e.preventDefault();
     
     if (!selectedBranch) {
+      toast({
+        title: "Error",
+        description: "Please select a branch",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -78,6 +86,10 @@ export const AdminPanel = () => {
         }
         return record;
       }));
+      toast({
+        title: "Success",
+        description: "Record updated successfully",
+      });
     } else {
       const newRecord = {
         id: Date.now().toString(),
@@ -91,6 +103,10 @@ export const AdminPanel = () => {
       };
       
       setProcessedRecords(prev => [...prev, newRecord]);
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
     }
 
     // Reset form
