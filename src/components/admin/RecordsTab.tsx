@@ -40,6 +40,7 @@ interface RecordsTabProps {
   setInvoiceStatus: (value: string) => void;
   processedRecords: Record[];
   onEdit: (record: Record) => void;
+  onDelete: (recordId: string) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -69,6 +70,7 @@ export const RecordsTab = ({
   setInvoiceStatus,
   processedRecords,
   onEdit,
+  onDelete,
   onSubmit,
 }: RecordsTabProps) => {
   return (
@@ -104,6 +106,7 @@ export const RecordsTab = ({
         <ProcessedRecords 
           records={processedRecords} 
           onEdit={onEdit}
+          onDelete={onDelete}
         />
       </Card>
     </div>
