@@ -9,13 +9,19 @@ const getStoredBranches = (): Branch[] => {
   if (storedBranches) {
     return JSON.parse(storedBranches);
   }
-  return [
+  
+  // Default branches
+  const defaultBranches = [
     { id: "1", name: "Abdoun" },
     { id: "2", name: "Abdali" },
     { id: "3", name: "7th Circle" },
     { id: "4", name: "Yasmeen" },
     { id: "5", name: "Abdoun Circle" }
   ];
+  
+  // Store default branches in localStorage
+  localStorage.setItem('branches', JSON.stringify(defaultBranches));
+  return defaultBranches;
 };
 
 export let branches: Branch[] = getStoredBranches();
