@@ -40,7 +40,7 @@ export const ManagerDashboard = () => {
               <SelectValue placeholder="Select branch" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Branches</SelectItem>
+              <SelectItem value="all">All Branches (Average)</SelectItem>
               {branches.map((branch) => (
                 <SelectItem key={branch.id} value={branch.id}>
                   {branch.name}
@@ -99,18 +99,33 @@ export const ManagerDashboard = () => {
           </div>
         </Card>
       </div>
-      
+
       <Card className="dashboard-card mb-8">
-        <h3 className="text-lg font-medium mb-4">Submission History</h3>
+        <h3 className="text-lg font-medium mb-4">Performance History</h3>
         <div className="chart-container" style={{ height: "400px" }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mockData.submissionHistory}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={(value) => new Date(value).toLocaleDateString()}
+              />
+              <YAxis yAxisId="left" />
+              <YAxis 
+                yAxisId="right" 
+                orientation="right"
+                domain={[0, 100]}
+                tickFormatter={(value) => `${value}%`}
+              />
+              <Tooltip 
+                formatter={(value: number, name: string) => {
+                  if (name === 'successRate') return [`${value.toFixed(1)}%`, 'Success Rate'];
+                  return [value, name];
+                }}
+              />
               <Legend />
               <Line
+                yAxisId="left"
                 type="monotone"
                 dataKey="handover"
                 stroke="hsl(var(--primary))"
@@ -118,6 +133,7 @@ export const ManagerDashboard = () => {
                 name="Handover"
               />
               <Line
+                yAxisId="left"
                 type="monotone"
                 dataKey="deposits"
                 stroke="hsl(var(--secondary))"
@@ -125,11 +141,21 @@ export const ManagerDashboard = () => {
                 name="Deposits"
               />
               <Line
+                yAxisId="left"
                 type="monotone"
                 dataKey="invoices"
                 stroke="hsl(var(--destructive))"
                 strokeWidth={2}
                 name="Invoices"
+              />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="successRate"
+                stroke="hsl(var(--success))"
+                strokeWidth={2}
+                name="Success Rate"
+                dot={false}
               />
             </LineChart>
           </ResponsiveContainer>

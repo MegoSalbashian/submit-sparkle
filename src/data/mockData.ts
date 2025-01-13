@@ -45,13 +45,8 @@ export const addBranch = (name: string) => {
   return newBranch;
 };
 
-export const generateMockData = (branchId: string, dateRange: string = "7d") => {
-  // Generate different mock data based on branch and date range
-  const baseMultiplier = branchId === "all" ? 1 : parseInt(branchId);
-  const dateMultiplier = dateRange === "7d" ? 1 : 
-                        dateRange === "30d" ? 2 :
-                        dateRange === "90d" ? 3 : 4;
-
+const generateBranchData = (branchId: string, dateMultiplier: number) => {
+  const baseMultiplier = parseInt(branchId);
   return {
     streaks: {
       handover: Math.max(1, (3 * baseMultiplier * dateMultiplier) % 7),
@@ -77,69 +72,123 @@ export const generateMockData = (branchId: string, dateRange: string = "7d") => 
       handover: 3 * baseMultiplier * dateMultiplier,
       deposits: 3 * baseMultiplier * dateMultiplier,
       invoices: 2 * baseMultiplier * dateMultiplier,
+    }
+  };
+};
+
+const calculateAverageData = (branchesData: any[]) => {
+  const initialValue = {
+    streaks: { handover: 0, deposits: 0, invoices: 0 },
+    longestStreaks: { handover: 0, deposits: 0, invoices: 0 },
+    totalSubmissions: { handover: 0, deposits: 0, invoices: 0 },
+    approvedSubmissions: { handover: 0, deposits: 0, invoices: 0 },
+    rejectedSubmissions: { handover: 0, deposits: 0, invoices: 0 }
+  };
+
+  const sum = branchesData.reduce((acc, curr) => ({
+    streaks: {
+      handover: acc.streaks.handover + curr.streaks.handover,
+      deposits: acc.streaks.deposits + curr.streaks.deposits,
+      invoices: acc.streaks.invoices + curr.streaks.invoices
     },
-    submissionHistory: generateSubmissionHistory(branchId, dateRange),
+    longestStreaks: {
+      handover: acc.longestStreaks.handover + curr.longestStreaks.handover,
+      deposits: acc.longestStreaks.deposits + curr.longestStreaks.deposits,
+      invoices: acc.longestStreaks.invoices + curr.longestStreaks.invoices
+    },
+    totalSubmissions: {
+      handover: acc.totalSubmissions.handover + curr.totalSubmissions.handover,
+      deposits: acc.totalSubmissions.deposits + curr.totalSubmissions.deposits,
+      invoices: acc.totalSubmissions.invoices + curr.totalSubmissions.invoices
+    },
+    approvedSubmissions: {
+      handover: acc.approvedSubmissions.handover + curr.approvedSubmissions.handover,
+      deposits: acc.approvedSubmissions.deposits + curr.approvedSubmissions.deposits,
+      invoices: acc.approvedSubmissions.invoices + curr.approvedSubmissions.invoices
+    },
+    rejectedSubmissions: {
+      handover: acc.rejectedSubmissions.handover + curr.rejectedSubmissions.handover,
+      deposits: acc.rejectedSubmissions.deposits + curr.rejectedSubmissions.deposits,
+      invoices: acc.rejectedSubmissions.invoices + curr.rejectedSubmissions.invoices
+    }
+  }), initialValue);
+
+  const count = branchesData.length;
+  return {
+    streaks: {
+      handover: Math.round(sum.streaks.handover / count),
+      deposits: Math.round(sum.streaks.deposits / count),
+      invoices: Math.round(sum.streaks.invoices / count)
+    },
+    longestStreaks: {
+      handover: Math.round(sum.longestStreaks.handover / count),
+      deposits: Math.round(sum.longestStreaks.deposits / count),
+      invoices: Math.round(sum.longestStreaks.invoices / count)
+    },
+    totalSubmissions: {
+      handover: Math.round(sum.totalSubmissions.handover / count),
+      deposits: Math.round(sum.totalSubmissions.deposits / count),
+      invoices: Math.round(sum.totalSubmissions.invoices / count)
+    },
+    approvedSubmissions: {
+      handover: Math.round(sum.approvedSubmissions.handover / count),
+      deposits: Math.round(sum.approvedSubmissions.deposits / count),
+      invoices: Math.round(sum.approvedSubmissions.invoices / count)
+    },
+    rejectedSubmissions: {
+      handover: Math.round(sum.rejectedSubmissions.handover / count),
+      deposits: Math.round(sum.rejectedSubmissions.deposits / count),
+      invoices: Math.round(sum.rejectedSubmissions.invoices / count)
+    }
   };
 };
 
 const generateSubmissionHistory = (branchId: string, dateRange: string) => {
+  const days = dateRange === "7d" ? 7 : 
+              dateRange === "30d" ? 30 : 
+              dateRange === "90d" ? 90 : 180;
+  
+  const data = [];
   const baseMultiplier = branchId === "all" ? 1 : parseInt(branchId);
+  
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    
+    const successRate = Math.min(100, Math.max(0, 
+      70 + (Math.sin(i * 0.1) * 20) + (Math.random() * 10)
+    ));
+    
+    data.push({
+      date: date.toISOString().split('T')[0],
+      successRate,
+      handover: Math.round(Math.random() * 5 * baseMultiplier),
+      deposits: Math.round(Math.random() * 4 * baseMultiplier),
+      invoices: Math.round(Math.random() * 3 * baseMultiplier)
+    });
+  }
+  
+  return data;
+};
+
+export const generateMockData = (branchId: string, dateRange: string = "7d") => {
   const dateMultiplier = dateRange === "7d" ? 1 : 
                         dateRange === "30d" ? 2 :
                         dateRange === "90d" ? 3 : 4;
-  
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  
-  return days.map(day => ({
-    date: day,
-    handover: Math.floor(Math.random() * 5 * baseMultiplier * dateMultiplier),
-    deposits: Math.floor(Math.random() * 4 * baseMultiplier * dateMultiplier),
-    invoices: Math.floor(Math.random() * 3 * baseMultiplier * dateMultiplier),
-  }));
-};
 
-const calculateStreak = (records: any[], type: 'handover' | 'deposits' | 'invoice') => {
-  // Sort records by date in descending order
-  const sortedRecords = [...records].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  let currentStreak = 0;
-  let longestStreak = 0;
-  let previousDate: Date | null = null;
-
-  for (const record of sortedRecords) {
-    const currentDate = new Date(record.date);
-    const status = type === 'handover' ? record.handoverStatus :
-                   type === 'deposits' ? record.depositStatus :
-                   record.invoiceStatus;
-
-    // Only count "Completed" or "Approved" statuses
-    if (status === 'Completed' || status === 'Approved') {
-      if (!previousDate) {
-        currentStreak = 1;
-      } else {
-        // Check if dates are consecutive
-        const diffTime = Math.abs(previousDate.getTime() - currentDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) {
-          currentStreak++;
-        } else {
-          // Break in streak
-          longestStreak = Math.max(longestStreak, currentStreak);
-          currentStreak = 1;
-        }
-      }
-      previousDate = currentDate;
-    }
+  if (branchId === "all") {
+    // Calculate average data from all branches
+    const branchesData = branches.map(branch => 
+      generateBranchData(branch.id, dateMultiplier)
+    );
+    return {
+      ...calculateAverageData(branchesData),
+      submissionHistory: generateSubmissionHistory(branchId, dateRange)
+    };
   }
 
-  // Update longest streak one final time
-  longestStreak = Math.max(longestStreak, currentStreak);
-
   return {
-    current: currentStreak,
-    longest: longestStreak
+    ...generateBranchData(branchId, dateMultiplier),
+    submissionHistory: generateSubmissionHistory(branchId, dateRange)
   };
 };
