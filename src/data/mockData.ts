@@ -45,6 +45,59 @@ export const addBranch = (name: string) => {
   return newBranch;
 };
 
+export const generateMockData = (branchId: string, dateRange: string = "7d") => {
+  // Generate different mock data based on branch and date range
+  const baseMultiplier = branchId === "all" ? 1 : parseInt(branchId);
+  const dateMultiplier = dateRange === "7d" ? 1 : 
+                        dateRange === "30d" ? 2 :
+                        dateRange === "90d" ? 3 : 4;
+
+  return {
+    streaks: {
+      handover: Math.max(1, (3 * baseMultiplier * dateMultiplier) % 7),
+      deposits: Math.max(1, (2 * baseMultiplier * dateMultiplier) % 6),
+      invoices: Math.max(1, (1 * baseMultiplier * dateMultiplier) % 5),
+    },
+    longestStreaks: {
+      handover: Math.max(3, (5 * baseMultiplier * dateMultiplier) % 10),
+      deposits: Math.max(2, (4 * baseMultiplier * dateMultiplier) % 8),
+      invoices: Math.max(1, (3 * baseMultiplier * dateMultiplier) % 7),
+    },
+    totalSubmissions: {
+      handover: 10 * baseMultiplier * dateMultiplier,
+      deposits: 8 * baseMultiplier * dateMultiplier,
+      invoices: 6 * baseMultiplier * dateMultiplier,
+    },
+    approvedSubmissions: {
+      handover: 7 * baseMultiplier * dateMultiplier,
+      deposits: 5 * baseMultiplier * dateMultiplier,
+      invoices: 4 * baseMultiplier * dateMultiplier,
+    },
+    rejectedSubmissions: {
+      handover: 3 * baseMultiplier * dateMultiplier,
+      deposits: 3 * baseMultiplier * dateMultiplier,
+      invoices: 2 * baseMultiplier * dateMultiplier,
+    },
+    submissionHistory: generateSubmissionHistory(branchId, dateRange),
+  };
+};
+
+const generateSubmissionHistory = (branchId: string, dateRange: string) => {
+  const baseMultiplier = branchId === "all" ? 1 : parseInt(branchId);
+  const dateMultiplier = dateRange === "7d" ? 1 : 
+                        dateRange === "30d" ? 2 :
+                        dateRange === "90d" ? 3 : 4;
+  
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  
+  return days.map(day => ({
+    date: day,
+    handover: Math.floor(Math.random() * 5 * baseMultiplier * dateMultiplier),
+    deposits: Math.floor(Math.random() * 4 * baseMultiplier * dateMultiplier),
+    invoices: Math.floor(Math.random() * 3 * baseMultiplier * dateMultiplier),
+  }));
+};
+
 const calculateStreak = (records: any[], type: 'handover' | 'deposits' | 'invoice') => {
   // Sort records by date in descending order
   const sortedRecords = [...records].sort((a, b) => 
@@ -88,46 +141,5 @@ const calculateStreak = (records: any[], type: 'handover' | 'deposits' | 'invoic
   return {
     current: currentStreak,
     longest: longestStreak
-  };
-};
-
-export const generateMockData = (branchId: string, dateRange: string = "7d") => {
-  // For now, return mock data structure
-  // In a real implementation, this would use actual records from your database
-  return {
-    streaks: {
-      handover: 3, // Example streak
-      deposits: 2,
-      invoices: 1,
-    },
-    longestStreaks: {
-      handover: 5, // Example longest streak
-      deposits: 4,
-      invoices: 3,
-    },
-    totalSubmissions: {
-      handover: 10,
-      deposits: 8,
-      invoices: 6,
-    },
-    approvedSubmissions: {
-      handover: 7,
-      deposits: 5,
-      invoices: 4,
-    },
-    rejectedSubmissions: {
-      handover: 3,
-      deposits: 3,
-      invoices: 2,
-    },
-    submissionHistory: [
-      { date: "Mon", handover: 2, deposits: 1, invoices: 1 },
-      { date: "Tue", handover: 1, deposits: 2, invoices: 0 },
-      { date: "Wed", handover: 3, deposits: 1, invoices: 1 },
-      { date: "Thu", handover: 2, deposits: 0, invoices: 2 },
-      { date: "Fri", handover: 1, deposits: 2, invoices: 1 },
-      { date: "Sat", handover: 0, deposits: 1, invoices: 0 },
-      { date: "Sun", handover: 1, deposits: 1, invoices: 1 },
-    ],
   };
 };
