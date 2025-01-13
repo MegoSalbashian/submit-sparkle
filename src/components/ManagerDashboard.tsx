@@ -52,70 +52,8 @@ export const ManagerDashboard = () => {
           <DateRangeSelector value={dateRange} onValueChange={handleDateRangeChange} />
         </div>
       </div>
-      
-      <Card className="dashboard-card mb-8">
-        <h3 className="text-lg font-medium mb-4">Branch Streaks Overview</h3>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Branch</TableHead>
-                <TableHead>Handover Streak</TableHead>
-                <TableHead>Deposits Streak</TableHead>
-                <TableHead>Invoice Streak</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {branchStreaks.map((branch) => (
-                <TableRow key={branch.id}>
-                  <TableCell className="font-medium">{branch.name}</TableCell>
-                  <TableCell>{branch.streaks.handover} days</TableCell>
-                  <TableCell>{branch.streaks.deposits} days</TableCell>
-                  <TableCell>{branch.streaks.invoices} days</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
-      
-      <Card className="dashboard-card mb-8">
-        <h3 className="text-lg font-medium mb-4">Submission History</h3>
-        <div className="chart-container" style={{ height: "400px" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockData.submissionHistory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="handover"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-                name="Handover"
-              />
-              <Line
-                type="monotone"
-                dataKey="deposits"
-                stroke="hsl(var(--secondary))"
-                strokeWidth={2}
-                name="Deposits"
-              />
-              <Line
-                type="monotone"
-                dataKey="invoices"
-                stroke="hsl(var(--destructive))"
-                strokeWidth={2}
-                name="Invoices"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="dashboard-card">
           <h3 className="text-lg font-medium mb-4">Handover Performance</h3>
           <StreakCounter 
@@ -161,6 +99,68 @@ export const ManagerDashboard = () => {
           </div>
         </Card>
       </div>
+      
+      <Card className="dashboard-card mb-8">
+        <h3 className="text-lg font-medium mb-4">Submission History</h3>
+        <div className="chart-container" style={{ height: "400px" }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={mockData.submissionHistory}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="handover"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                name="Handover"
+              />
+              <Line
+                type="monotone"
+                dataKey="deposits"
+                stroke="hsl(var(--secondary))"
+                strokeWidth={2}
+                name="Deposits"
+              />
+              <Line
+                type="monotone"
+                dataKey="invoices"
+                stroke="hsl(var(--destructive))"
+                strokeWidth={2}
+                name="Invoices"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      <Card className="dashboard-card">
+        <h3 className="text-lg font-medium mb-4">Branch Streaks Overview</h3>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Branch</TableHead>
+                <TableHead>Handover Streak</TableHead>
+                <TableHead>Deposits Streak</TableHead>
+                <TableHead>Invoice Streak</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {branchStreaks.map((branch) => (
+                <TableRow key={branch.id}>
+                  <TableCell className="font-medium">{branch.name}</TableCell>
+                  <TableCell>{branch.streaks.handover} days</TableCell>
+                  <TableCell>{branch.streaks.deposits} days</TableCell>
+                  <TableCell>{branch.streaks.invoices} days</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
     </div>
   );
 };
