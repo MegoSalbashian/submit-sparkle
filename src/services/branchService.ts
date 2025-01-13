@@ -9,7 +9,14 @@ const DEFAULT_BRANCHES: Branch[] = [
   { id: "2", name: "Abdali" },
   { id: "3", name: "7th Circle" },
   { id: "4", name: "Yasmeen" },
-  { id: "5", name: "Abdoun Circle" }
+  { id: "5", name: "Abdoun Circle" },
+  { id: "6", name: "Sweifieh" },
+  { id: "7", name: "Gardens" },
+  { id: "8", name: "Khalda" },
+  { id: "9", name: "Dabouq" },
+  { id: "10", name: "Shmeisani" },
+  { id: "11", name: "Mecca Street" },
+  { id: "12", name: "Rabieh" }
 ];
 
 // Get branches from localStorage and merge with defaults
