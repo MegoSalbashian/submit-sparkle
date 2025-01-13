@@ -11,13 +11,22 @@ export type StreakData = {
 
 export type SubmissionType = keyof StreakData;
 
-export let branches: Branch[] = [
-  { id: "1", name: "Abdoun" },
-  { id: "2", name: "Abdali" },
-  { id: "3", name: "7th Circle" },
-  { id: "4", name: "Yasmeen" },
-  { id: "5", name: "Abdoun Circle" }
-];
+// Get branches from localStorage or use default if none exist
+const getStoredBranches = (): Branch[] => {
+  const storedBranches = localStorage.getItem('branches');
+  if (storedBranches) {
+    return JSON.parse(storedBranches);
+  }
+  return [
+    { id: "1", name: "Abdoun" },
+    { id: "2", name: "Abdali" },
+    { id: "3", name: "7th Circle" },
+    { id: "4", name: "Yasmeen" },
+    { id: "5", name: "Abdoun Circle" }
+  ];
+};
+
+export let branches: Branch[] = getStoredBranches();
 
 export const addBranch = (name: string) => {
   if (branches.some(branch => branch.name.toLowerCase() === name.toLowerCase())) {
@@ -30,6 +39,9 @@ export const addBranch = (name: string) => {
     name,
   };
   branches = [...branches, newBranch];
+  
+  // Save to localStorage
+  localStorage.setItem('branches', JSON.stringify(branches));
   return newBranch;
 };
 
