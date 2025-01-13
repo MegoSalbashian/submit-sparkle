@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { branches, generateMockData } from "@/data/mockData";
+import { branches } from "@/services/branchService";
+import { generateMockData } from "@/services/mockDataGenerator";
 import { DateRangeSelector } from "./DateRangeSelector";
 import { PerformanceCard } from "./dashboard/PerformanceCard";
 import { SuccessRateChart } from "./dashboard/SuccessRateChart";
