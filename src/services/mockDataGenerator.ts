@@ -2,32 +2,31 @@ import { branches } from './branchService';
 import { calculateAverageData } from '../utils/calculationUtils';
 
 const generateBranchData = (branchId: string, dateMultiplier: number) => {
-  const baseMultiplier = parseInt(branchId);
   return {
     streaks: {
-      handover: Math.max(1, (3 * baseMultiplier * dateMultiplier) % 7),
-      deposits: Math.max(1, (2 * baseMultiplier * dateMultiplier) % 6),
-      invoices: Math.max(1, (1 * baseMultiplier * dateMultiplier) % 5),
+      handover: 0,
+      deposits: 0,
+      invoices: 0,
     },
     longestStreaks: {
-      handover: Math.max(3, (5 * baseMultiplier * dateMultiplier) % 10),
-      deposits: Math.max(2, (4 * baseMultiplier * dateMultiplier) % 8),
-      invoices: Math.max(1, (3 * baseMultiplier * dateMultiplier) % 7),
+      handover: 0,
+      deposits: 0,
+      invoices: 0,
     },
     totalSubmissions: {
-      handover: 10 * baseMultiplier * dateMultiplier,
-      deposits: 8 * baseMultiplier * dateMultiplier,
-      invoices: 6 * baseMultiplier * dateMultiplier,
+      handover: 0,
+      deposits: 0,
+      invoices: 0,
     },
     approvedSubmissions: {
-      handover: 7 * baseMultiplier * dateMultiplier,
-      deposits: 5 * baseMultiplier * dateMultiplier,
-      invoices: 4 * baseMultiplier * dateMultiplier,
+      handover: 0,
+      deposits: 0,
+      invoices: 0,
     },
     rejectedSubmissions: {
-      handover: 3 * baseMultiplier * dateMultiplier,
-      deposits: 3 * baseMultiplier * dateMultiplier,
-      invoices: 2 * baseMultiplier * dateMultiplier,
+      handover: 0,
+      deposits: 0,
+      invoices: 0,
     }
   };
 };
@@ -38,26 +37,14 @@ const generateSubmissionHistory = (branchId: string, dateRange: string) => {
               dateRange === "90d" ? 90 : 180;
   
   const data = [];
-  const baseMultiplier = branchId === "all" ? 1 : parseInt(branchId);
-  const baseSuccessRate = 75;
   
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     
-    const variation = Math.sin(i * 0.3) * 10;
-    const randomFactor = (Math.random() - 0.5) * 5;
-    let successRate = baseSuccessRate + variation + randomFactor;
-    
-    if (branchId !== "all") {
-      successRate += (baseMultiplier - 3) * 2;
-    }
-    
-    successRate = Math.min(100, Math.max(0, successRate));
-    
     data.push({
       date: date.toISOString().split('T')[0],
-      successRate: Number(successRate.toFixed(1))
+      successRate: 0
     });
   }
   
