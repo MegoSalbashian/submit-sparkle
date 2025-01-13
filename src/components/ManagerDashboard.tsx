@@ -30,6 +30,12 @@ export const ManagerDashboard = () => {
     successRate: generateMockData(branch.id, dateRange).submissionHistory[0].successRate
   }));
 
+  // Calculate min and max success rates for Y-axis domain
+  const successRates = mockData.submissionHistory.map(item => item.successRate);
+  const minRate = Math.floor(Math.min(...successRates));
+  const maxRate = Math.ceil(Math.max(...successRates));
+  const padding = Math.round((maxRate - minRate) * 0.1); // Add 10% padding
+
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -112,8 +118,8 @@ export const ManagerDashboard = () => {
                 tickFormatter={(value) => new Date(value).toLocaleDateString()}
               />
               <YAxis 
-                domain={[0, 100]}
-                tickFormatter={(value) => `${value}%`}
+                domain={[Math.max(0, minRate - padding), maxRate + padding]}
+                tickFormatter={(value) => `${value.toFixed(1)}%`}
               />
               <Tooltip 
                 formatter={(value: number) => [`${value.toFixed(1)}%`, 'Success Rate']}
