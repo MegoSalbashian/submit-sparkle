@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { branches, generateMockData } from "@/data/mockData";
 import { StreakCounter } from "./StreakCounter";
@@ -26,7 +26,8 @@ export const ManagerDashboard = () => {
   // Generate mock streak data for each branch
   const branchStreaks = branches.map(branch => ({
     ...branch,
-    streaks: generateMockData(branch.id, dateRange).streaks
+    streaks: generateMockData(branch.id, dateRange).streaks,
+    successRate: generateMockData(branch.id, dateRange).submissionHistory[0].successRate
   }));
 
   return (
@@ -101,7 +102,7 @@ export const ManagerDashboard = () => {
       </div>
 
       <Card className="dashboard-card mb-8">
-        <h3 className="text-lg font-medium mb-4">Performance History</h3>
+        <h3 className="text-lg font-medium mb-4">Success Rate History</h3>
         <div className="chart-container" style={{ height: "400px" }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mockData.submissionHistory}>
@@ -110,46 +111,14 @@ export const ManagerDashboard = () => {
                 dataKey="date" 
                 tickFormatter={(value) => new Date(value).toLocaleDateString()}
               />
-              <YAxis yAxisId="left" />
               <YAxis 
-                yAxisId="right" 
-                orientation="right"
                 domain={[0, 100]}
                 tickFormatter={(value) => `${value}%`}
               />
               <Tooltip 
-                formatter={(value: number, name: string) => {
-                  if (name === 'successRate') return [`${value.toFixed(1)}%`, 'Success Rate'];
-                  return [value, name];
-                }}
-              />
-              <Legend />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="handover"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-                name="Handover"
+                formatter={(value: number) => [`${value.toFixed(1)}%`, 'Success Rate']}
               />
               <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="deposits"
-                stroke="hsl(var(--secondary))"
-                strokeWidth={2}
-                name="Deposits"
-              />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="invoices"
-                stroke="hsl(var(--destructive))"
-                strokeWidth={2}
-                name="Invoices"
-              />
-              <Line
-                yAxisId="right"
                 type="monotone"
                 dataKey="successRate"
                 stroke="hsl(var(--success))"
@@ -172,6 +141,7 @@ export const ManagerDashboard = () => {
                 <TableHead>Handover Streak</TableHead>
                 <TableHead>Deposits Streak</TableHead>
                 <TableHead>Invoice Streak</TableHead>
+                <TableHead>Success Rate</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -181,6 +151,7 @@ export const ManagerDashboard = () => {
                   <TableCell>{branch.streaks.handover} days</TableCell>
                   <TableCell>{branch.streaks.deposits} days</TableCell>
                   <TableCell>{branch.streaks.invoices} days</TableCell>
+                  <TableCell>{branch.successRate.toFixed(1)}%</TableCell>
                 </TableRow>
               ))}
             </TableBody>
