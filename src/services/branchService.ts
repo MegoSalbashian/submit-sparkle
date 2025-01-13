@@ -3,33 +3,53 @@ export type Branch = {
   name: string;
 };
 
-// Get branches from localStorage or use default if none exist
+// Default branches that will always be available
+const DEFAULT_BRANCHES: Branch[] = [
+  { id: "1", name: "Abdoun" },
+  { id: "2", name: "Abdali" },
+  { id: "3", name: "7th Circle" },
+  { id: "4", name: "Yasmeen" },
+  { id: "5", name: "Abdoun Circle" }
+];
+
+// Get branches from localStorage and merge with defaults
 const getStoredBranches = (): Branch[] => {
-  const storedBranches = localStorage.getItem('branches');
-  if (storedBranches) {
-    return JSON.parse(storedBranches);
+  try {
+    const storedBranchesString = localStorage.getItem('custom_branches');
+    const storedBranches = storedBranchesString ? JSON.parse(storedBranchesString) : [];
+    
+    // Merge stored branches with default branches, preventing duplicates
+    const mergedBranches = [...DEFAULT_BRANCHES];
+    
+    storedBranches.forEach((storedBranch: Branch) => {
+      if (!mergedBranches.some(branch => branch.name.toLowerCase() === storedBranch.name.toLowerCase())) {
+        mergedBranches.push(storedBranch);
+      }
+    });
+    
+    return mergedBranches;
+  } catch (error) {
+    console.error('Error loading branches:', error);
+    return DEFAULT_BRANCHES;
   }
-  
-  // Default branches
-  const defaultBranches = [
-    { id: "1", name: "Abdoun" },
-    { id: "2", name: "Abdali" },
-    { id: "3", name: "7th Circle" },
-    { id: "4", name: "Yasmeen" },
-    { id: "5", name: "Abdoun Circle" }
-  ];
-  
-  // Store default branches in localStorage
-  localStorage.setItem('branches', JSON.stringify(defaultBranches));
-  return defaultBranches;
 };
 
-// Initialize branches from storage
+// Initialize branches
 export let branches: Branch[] = getStoredBranches();
 
-// Update localStorage whenever branches are modified
+// Update storage with only custom branches
 const updateStorage = () => {
-  localStorage.setItem('branches', JSON.stringify(branches));
+  try {
+    // Only store branches that aren't in the default set
+    const customBranches = branches.filter(
+      branch => !DEFAULT_BRANCHES.some(
+        defaultBranch => defaultBranch.name.toLowerCase() === branch.name.toLowerCase()
+      )
+    );
+    localStorage.setItem('custom_branches', JSON.stringify(customBranches));
+  } catch (error) {
+    console.error('Error saving branches:', error);
+  }
 };
 
 export const addBranch = (name: string) => {
@@ -40,25 +60,29 @@ export const addBranch = (name: string) => {
   const maxId = Math.max(...branches.map(branch => parseInt(branch.id)));
   const newBranch = {
     id: (maxId + 1).toString(),
-    name,
+    name: name.trim(),
   };
   
   branches = [...branches, newBranch];
-  updateStorage(); // Update localStorage after adding branch
+  updateStorage();
   return newBranch;
 };
 
-// Add function to update branch
 export const updateBranch = (id: string, name: string) => {
   const index = branches.findIndex(b => b.id === id);
   if (index !== -1) {
-    branches[index].name = name;
-    updateStorage(); // Update localStorage after modifying branch
+    branches[index].name = name.trim();
+    updateStorage();
   }
 };
 
-// Add function to delete branch
 export const deleteBranch = (id: string) => {
+  // Prevent deletion of default branches
+  const isDefaultBranch = DEFAULT_BRANCHES.some(branch => branch.id === id);
+  if (isDefaultBranch) {
+    throw new Error("Cannot delete default branch");
+  }
+  
   branches = branches.filter(b => b.id !== id);
-  updateStorage(); // Update localStorage after deleting branch
+  updateStorage();
 };
