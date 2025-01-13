@@ -117,6 +117,7 @@ export const ManagerDashboard = () => {
               />
               <Tooltip 
                 formatter={(value: number) => [`${value.toFixed(1)}%`, 'Success Rate']}
+                labelFormatter={(label) => new Date(label).toLocaleDateString()}
               />
               <Line
                 type="monotone"

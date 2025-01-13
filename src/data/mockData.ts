@@ -76,6 +76,41 @@ const generateBranchData = (branchId: string, dateMultiplier: number) => {
   };
 };
 
+const generateSubmissionHistory = (branchId: string, dateRange: string) => {
+  const days = dateRange === "7d" ? 7 : 
+              dateRange === "30d" ? 30 : 
+              dateRange === "90d" ? 90 : 180;
+  
+  const data = [];
+  const baseMultiplier = branchId === "all" ? 1 : parseInt(branchId);
+  const baseSuccessRate = 75; // Base success rate of 75%
+  
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    
+    // Generate success rate with some variation
+    const variation = Math.sin(i * 0.3) * 10; // Creates a wave pattern
+    const randomFactor = (Math.random() - 0.5) * 5; // Adds some randomness
+    let successRate = baseSuccessRate + variation + randomFactor;
+    
+    // Adjust success rate based on branch performance
+    if (branchId !== "all") {
+      successRate += (baseMultiplier - 3) * 2; // Branch specific adjustment
+    }
+    
+    // Ensure success rate stays within 0-100 range
+    successRate = Math.min(100, Math.max(0, successRate));
+    
+    data.push({
+      date: date.toISOString().split('T')[0],
+      successRate: Number(successRate.toFixed(1))
+    });
+  }
+  
+  return data;
+};
+
 const calculateAverageData = (branchesData: any[]) => {
   const initialValue = {
     streaks: { handover: 0, deposits: 0, invoices: 0 },
@@ -141,34 +176,6 @@ const calculateAverageData = (branchesData: any[]) => {
       invoices: Math.round(sum.rejectedSubmissions.invoices / count)
     }
   };
-};
-
-const generateSubmissionHistory = (branchId: string, dateRange: string) => {
-  const days = dateRange === "7d" ? 7 : 
-              dateRange === "30d" ? 30 : 
-              dateRange === "90d" ? 90 : 180;
-  
-  const data = [];
-  const baseMultiplier = branchId === "all" ? 1 : parseInt(branchId);
-  
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    
-    const successRate = Math.min(100, Math.max(0, 
-      70 + (Math.sin(i * 0.1) * 20) + (Math.random() * 10)
-    ));
-    
-    data.push({
-      date: date.toISOString().split('T')[0],
-      successRate,
-      handover: Math.round(Math.random() * 5 * baseMultiplier),
-      deposits: Math.round(Math.random() * 4 * baseMultiplier),
-      invoices: Math.round(Math.random() * 3 * baseMultiplier)
-    });
-  }
-  
-  return data;
 };
 
 export const generateMockData = (branchId: string, dateRange: string = "7d") => {
