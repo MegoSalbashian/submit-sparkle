@@ -24,7 +24,13 @@ const getStoredBranches = (): Branch[] => {
   return defaultBranches;
 };
 
+// Initialize branches from storage
 export let branches: Branch[] = getStoredBranches();
+
+// Update localStorage whenever branches are modified
+const updateStorage = () => {
+  localStorage.setItem('branches', JSON.stringify(branches));
+};
 
 export const addBranch = (name: string) => {
   if (branches.some(branch => branch.name.toLowerCase() === name.toLowerCase())) {
@@ -36,8 +42,23 @@ export const addBranch = (name: string) => {
     id: (maxId + 1).toString(),
     name,
   };
-  branches = [...branches, newBranch];
   
-  localStorage.setItem('branches', JSON.stringify(branches));
+  branches = [...branches, newBranch];
+  updateStorage(); // Update localStorage after adding branch
   return newBranch;
+};
+
+// Add function to update branch
+export const updateBranch = (id: string, name: string) => {
+  const index = branches.findIndex(b => b.id === id);
+  if (index !== -1) {
+    branches[index].name = name;
+    updateStorage(); // Update localStorage after modifying branch
+  }
+};
+
+// Add function to delete branch
+export const deleteBranch = (id: string) => {
+  branches = branches.filter(b => b.id !== id);
+  updateStorage(); // Update localStorage after deleting branch
 };
