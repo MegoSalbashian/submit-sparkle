@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { branches, generateMockData } from "@/data/mockData";
 import { StreakCounter } from "./StreakCounter";
 import { DateRangeSelector } from "./DateRangeSelector";
@@ -21,6 +22,12 @@ export const ManagerDashboard = () => {
     setDateRange(value);
     console.log("Selected date range:", value);
   };
+
+  // Generate mock streak data for each branch
+  const branchStreaks = branches.map(branch => ({
+    ...branch,
+    streaks: generateMockData(branch.id, dateRange).streaks
+  }));
 
   return (
     <div className="container mx-auto p-6">
@@ -46,37 +53,31 @@ export const ManagerDashboard = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-4">Handover Streak</h3>
-          <StreakCounter 
-            value={mockData.streaks.handover} 
-            longestStreak={mockData.longestStreaks.handover}
-            label="Days" 
-            type="handover" 
-          />
-        </Card>
-        
-        <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-4">Deposits Streak</h3>
-          <StreakCounter 
-            value={mockData.streaks.deposits} 
-            longestStreak={mockData.longestStreaks.deposits}
-            label="Days" 
-            type="deposits" 
-          />
-        </Card>
-        
-        <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-4">Invoice Streak</h3>
-          <StreakCounter 
-            value={mockData.streaks.invoices} 
-            longestStreak={mockData.longestStreaks.invoices}
-            label="Days" 
-            type="invoices" 
-          />
-        </Card>
-      </div>
+      <Card className="dashboard-card mb-8">
+        <h3 className="text-lg font-medium mb-4">Branch Streaks Overview</h3>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Branch</TableHead>
+                <TableHead>Handover Streak</TableHead>
+                <TableHead>Deposits Streak</TableHead>
+                <TableHead>Invoice Streak</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {branchStreaks.map((branch) => (
+                <TableRow key={branch.id}>
+                  <TableCell className="font-medium">{branch.name}</TableCell>
+                  <TableCell>{branch.streaks.handover} days</TableCell>
+                  <TableCell>{branch.streaks.deposits} days</TableCell>
+                  <TableCell>{branch.streaks.invoices} days</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
       
       <Card className="dashboard-card mb-8">
         <h3 className="text-lg font-medium mb-4">Submission History</h3>
@@ -117,7 +118,13 @@ export const ManagerDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="dashboard-card">
           <h3 className="text-lg font-medium mb-4">Handover Performance</h3>
-          <div className="space-y-2">
+          <StreakCounter 
+            value={mockData.streaks.handover} 
+            longestStreak={mockData.longestStreaks.handover}
+            label="Days" 
+            type="handover" 
+          />
+          <div className="space-y-2 mt-4">
             <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.handover}</p>
             <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.handover}</p>
             <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.handover}</p>
@@ -126,7 +133,13 @@ export const ManagerDashboard = () => {
         
         <Card className="dashboard-card">
           <h3 className="text-lg font-medium mb-4">Deposits Performance</h3>
-          <div className="space-y-2">
+          <StreakCounter 
+            value={mockData.streaks.deposits} 
+            longestStreak={mockData.longestStreaks.deposits}
+            label="Days" 
+            type="deposits" 
+          />
+          <div className="space-y-2 mt-4">
             <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.deposits}</p>
             <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.deposits}</p>
             <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.deposits}</p>
@@ -135,7 +148,13 @@ export const ManagerDashboard = () => {
         
         <Card className="dashboard-card">
           <h3 className="text-lg font-medium mb-4">Invoice Performance</h3>
-          <div className="space-y-2">
+          <StreakCounter 
+            value={mockData.streaks.invoices} 
+            longestStreak={mockData.longestStreaks.invoices}
+            label="Days" 
+            type="invoices" 
+          />
+          <div className="space-y-2 mt-4">
             <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.invoices}</p>
             <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.invoices}</p>
             <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.invoices}</p>
