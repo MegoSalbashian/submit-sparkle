@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { branches, generateMockData } from "@/data/mockData";
-import { StreakCounter } from "./StreakCounter";
 import { DateRangeSelector } from "./DateRangeSelector";
+import { PerformanceCard } from "./dashboard/PerformanceCard";
+import { SuccessRateChart } from "./dashboard/SuccessRateChart";
+import { BranchOverviewTable } from "./dashboard/BranchOverviewTable";
 
 export const ManagerDashboard = () => {
   const [selectedBranch, setSelectedBranch] = useState<string>("all");
@@ -23,18 +22,11 @@ export const ManagerDashboard = () => {
     console.log("Selected date range:", value);
   };
 
-  // Generate mock streak data for each branch
   const branchStreaks = branches.map(branch => ({
     ...branch,
     streaks: generateMockData(branch.id, dateRange).streaks,
     successRate: generateMockData(branch.id, dateRange).submissionHistory[0].successRate
   }));
-
-  // Calculate min and max success rates for Y-axis domain
-  const successRates = mockData.submissionHistory.map(item => item.successRate);
-  const minRate = Math.floor(Math.min(...successRates));
-  const maxRate = Math.ceil(Math.max(...successRates));
-  const padding = Math.round((maxRate - minRate) * 0.1); // Add 10% padding
 
   return (
     <div className="container mx-auto p-6">
@@ -61,110 +53,40 @@ export const ManagerDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-4">Handover Performance</h3>
-          <StreakCounter 
-            value={mockData.streaks.handover} 
-            longestStreak={mockData.longestStreaks.handover}
-            label="Days" 
-            type="handover" 
-          />
-          <div className="space-y-2 mt-4">
-            <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.handover}</p>
-            <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.handover}</p>
-            <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.handover}</p>
-          </div>
-        </Card>
+        <PerformanceCard
+          title="Handover Performance"
+          streakValue={mockData.streaks.handover}
+          longestStreak={mockData.longestStreaks.handover}
+          total={mockData.totalSubmissions.handover}
+          approved={mockData.approvedSubmissions.handover}
+          rejected={mockData.rejectedSubmissions.handover}
+          type="handover"
+        />
         
-        <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-4">Deposits Performance</h3>
-          <StreakCounter 
-            value={mockData.streaks.deposits} 
-            longestStreak={mockData.longestStreaks.deposits}
-            label="Days" 
-            type="deposits" 
-          />
-          <div className="space-y-2 mt-4">
-            <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.deposits}</p>
-            <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.deposits}</p>
-            <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.deposits}</p>
-          </div>
-        </Card>
+        <PerformanceCard
+          title="Deposits Performance"
+          streakValue={mockData.streaks.deposits}
+          longestStreak={mockData.longestStreaks.deposits}
+          total={mockData.totalSubmissions.deposits}
+          approved={mockData.approvedSubmissions.deposits}
+          rejected={mockData.rejectedSubmissions.deposits}
+          type="deposits"
+        />
         
-        <Card className="dashboard-card">
-          <h3 className="text-lg font-medium mb-4">Invoice Performance</h3>
-          <StreakCounter 
-            value={mockData.streaks.invoices} 
-            longestStreak={mockData.longestStreaks.invoices}
-            label="Days" 
-            type="invoices" 
-          />
-          <div className="space-y-2 mt-4">
-            <p className="text-sm text-muted-foreground">Total: {mockData.totalSubmissions.invoices}</p>
-            <p className="text-sm text-secondary">Approved: {mockData.approvedSubmissions.invoices}</p>
-            <p className="text-sm text-destructive">Rejected: {mockData.rejectedSubmissions.invoices}</p>
-          </div>
-        </Card>
+        <PerformanceCard
+          title="Invoice Performance"
+          streakValue={mockData.streaks.invoices}
+          longestStreak={mockData.longestStreaks.invoices}
+          total={mockData.totalSubmissions.invoices}
+          approved={mockData.approvedSubmissions.invoices}
+          rejected={mockData.rejectedSubmissions.invoices}
+          type="invoices"
+        />
       </div>
 
-      <Card className="dashboard-card mb-8">
-        <h3 className="text-lg font-medium mb-4">Success Rate History</h3>
-        <div className="chart-container" style={{ height: "400px" }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockData.submissionHistory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
-                tickFormatter={(value) => new Date(value).toLocaleDateString()}
-              />
-              <YAxis 
-                domain={[Math.max(0, minRate - padding), maxRate + padding]}
-                tickFormatter={(value) => `${value.toFixed(1)}%`}
-              />
-              <Tooltip 
-                formatter={(value: number) => [`${value.toFixed(1)}%`, 'Success Rate']}
-                labelFormatter={(label) => new Date(label).toLocaleDateString()}
-              />
-              <Line
-                type="monotone"
-                dataKey="successRate"
-                stroke="#22c55e"
-                strokeWidth={2}
-                name="Success Rate"
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      <Card className="dashboard-card">
-        <h3 className="text-lg font-medium mb-4">Branch Streaks Overview</h3>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Branch</TableHead>
-                <TableHead>Handover Streak</TableHead>
-                <TableHead>Deposits Streak</TableHead>
-                <TableHead>Invoice Streak</TableHead>
-                <TableHead>Success Rate</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {branchStreaks.map((branch) => (
-                <TableRow key={branch.id}>
-                  <TableCell className="font-medium">{branch.name}</TableCell>
-                  <TableCell>{branch.streaks.handover} days</TableCell>
-                  <TableCell>{branch.streaks.deposits} days</TableCell>
-                  <TableCell>{branch.streaks.invoices} days</TableCell>
-                  <TableCell>{branch.successRate.toFixed(1)}%</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+      <SuccessRateChart data={mockData.submissionHistory} />
+      
+      <BranchOverviewTable branches={branchStreaks} />
     </div>
   );
 };
