@@ -122,7 +122,7 @@ export const ManagerDashboard = () => {
               <Line
                 type="monotone"
                 dataKey="successRate"
-                stroke="hsl(var(--success))"
+                stroke="#22c55e"
                 strokeWidth={2}
                 name="Success Rate"
                 dot={false}
