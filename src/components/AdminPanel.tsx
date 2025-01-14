@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { branches } from "@/data/mockData";
 import {
@@ -12,13 +12,13 @@ import { RecordsTab } from "./admin/RecordsTab";
 import { useToast } from "@/hooks/use-toast";
 
 // Starting with an empty array of records
-const initialProcessedRecords: any[] = [];
+const STORAGE_KEY = 'processedRecords';
 
 export const AdminPanel = () => {
   const [selectedBranch, setSelectedBranch] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [processedRecords, setProcessedRecords] = useState(initialProcessedRecords);
+  const [processedRecords, setProcessedRecords] = useState<any[]>([]);
   
   const [depositStatus, setDepositStatus] = useState<string>("");
   const [depositDate, setDepositDate] = useState<string>("");
@@ -34,8 +34,21 @@ export const AdminPanel = () => {
   const [invoiceDate, setInvoiceDate] = useState<string>("");
 
   const { toast } = useToast();
+
+  // Load records from localStorage on component mount
+  useEffect(() => {
+    const savedRecords = localStorage.getItem(STORAGE_KEY);
+    if (savedRecords) {
+      setProcessedRecords(JSON.parse(savedRecords));
+    }
+  }, []);
+
+  // Save records to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(processedRecords));
+  }, [processedRecords]);
   
-  const handleEdit = (record: typeof initialProcessedRecords[0]) => {
+  const handleEdit = (record: typeof processedRecords[0]) => {
     setIsEditing(true);
     setEditingId(record.id);
     
