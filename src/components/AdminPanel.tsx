@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
-import { branches } from "@/data/mockData";
 import {
   Tabs,
   TabsContent,
@@ -9,78 +8,19 @@ import {
 } from "@/components/ui/tabs";
 import { BranchManagement } from "./BranchManagement";
 import { RecordsTab } from "./admin/RecordsTab";
+import { useAdminFormState } from "@/hooks/useAdminFormState";
+import { useRecordsManager } from "@/hooks/useRecordsManager";
 import { useToast } from "@/hooks/use-toast";
 
-// Starting with an empty array of records
-const STORAGE_KEY = 'processedRecords';
-
 export const AdminPanel = () => {
-  const [selectedBranch, setSelectedBranch] = useState<string>("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [processedRecords, setProcessedRecords] = useState<any[]>([]);
-  
-  const [depositStatus, setDepositStatus] = useState<string>("");
-  const [depositDate, setDepositDate] = useState<string>("");
-  const [depositOdooSession, setDepositOdooSession] = useState<string>("");
-  const [depositNotes, setDepositNotes] = useState<string>("");
-  
-  const [handoverStatus, setHandoverStatus] = useState<string>("");
-  const [handoverDate, setHandoverDate] = useState<string>("");
-  const [handoverOdooSession, setHandoverOdooSession] = useState<string>("");
-  const [handoverNotes, setHandoverNotes] = useState<string>("");
-  
-  const [invoiceStatus, setInvoiceStatus] = useState<string>("");
-  const [invoiceDate, setInvoiceDate] = useState<string>("");
-
+  const { formState, setters, resetForm, populateForm } = useAdminFormState();
+  const { processedRecords, handleDelete, saveRecord } = useRecordsManager();
   const { toast } = useToast();
-
-  // Load records from localStorage on component mount
-  useEffect(() => {
-    const savedRecords = localStorage.getItem(STORAGE_KEY);
-    if (savedRecords) {
-      setProcessedRecords(JSON.parse(savedRecords));
-    }
-  }, []);
-
-  // Save records to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(processedRecords));
-  }, [processedRecords]);
-  
-  const handleEdit = (record: typeof processedRecords[0]) => {
-    setIsEditing(true);
-    setEditingId(record.id);
-    
-    const branch = branches.find(b => b.name === record.branchName);
-    if (branch) {
-      setSelectedBranch(branch.id);
-    }
-    
-    setDepositDate(record.date);
-    setDepositOdooSession(record.depositOdooSession);
-    setDepositStatus(record.depositStatus.toLowerCase());
-    
-    setHandoverDate(record.date);
-    setHandoverOdooSession(record.handoverOdooSession);
-    setHandoverStatus(record.handoverStatus.toLowerCase());
-    
-    setInvoiceDate(record.date);
-    setInvoiceStatus(record.invoiceStatus.toLowerCase());
-  };
-
-  const handleDelete = (recordId: string) => {
-    setProcessedRecords(prev => prev.filter(record => record.id !== recordId));
-    toast({
-      title: "Success",
-      description: "Record deleted successfully",
-    });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedBranch) {
+    if (!formState.selectedBranch) {
       toast({
         title: "Error",
         description: "Please select a branch",
@@ -89,61 +29,12 @@ export const AdminPanel = () => {
       return;
     }
 
-    const selectedBranchData = branches.find(b => b.id === selectedBranch);
-    
-    if (isEditing && editingId) {
-      setProcessedRecords(prev => prev.map(record => {
-        if (record.id === editingId) {
-          return {
-            ...record,
-            branchName: selectedBranchData?.name || "",
-            date: depositDate,
-            depositOdooSession,
-            handoverOdooSession,
-            depositStatus: depositStatus.charAt(0).toUpperCase() + depositStatus.slice(1),
-            handoverStatus: handoverStatus.charAt(0).toUpperCase() + handoverStatus.slice(1),
-            invoiceStatus: invoiceStatus.charAt(0).toUpperCase() + invoiceStatus.slice(1),
-          };
-        }
-        return record;
-      }));
-      toast({
-        title: "Success",
-        description: "Record updated successfully",
-      });
-    } else {
-      const newRecord = {
-        id: Date.now().toString(),
-        branchName: selectedBranchData?.name || "",
-        date: depositDate,
-        depositOdooSession,
-        handoverOdooSession,
-        depositStatus: depositStatus.charAt(0).toUpperCase() + depositStatus.slice(1),
-        handoverStatus: handoverStatus.charAt(0).toUpperCase() + handoverStatus.slice(1),
-        invoiceStatus: invoiceStatus.charAt(0).toUpperCase() + invoiceStatus.slice(1),
-      };
-      
-      setProcessedRecords(prev => [...prev, newRecord]);
-      toast({
-        title: "Success",
-        description: "Record added successfully",
-      });
-    }
+    saveRecord(formState, formState.isEditing, formState.editingId);
+    resetForm();
+  };
 
-    // Reset form
-    setIsEditing(false);
-    setEditingId(null);
-    setSelectedBranch("");
-    setDepositStatus("");
-    setDepositDate("");
-    setDepositOdooSession("");
-    setDepositNotes("");
-    setHandoverStatus("");
-    setHandoverDate("");
-    setHandoverOdooSession("");
-    setHandoverNotes("");
-    setInvoiceStatus("");
-    setInvoiceDate("");
+  const handleEdit = (record: any) => {
+    populateForm(record);
   };
 
   return (
@@ -164,29 +55,8 @@ export const AdminPanel = () => {
 
         <TabsContent value="records">
           <RecordsTab
-            selectedBranch={selectedBranch}
-            setSelectedBranch={setSelectedBranch}
-            isEditing={isEditing}
-            depositDate={depositDate}
-            setDepositDate={setDepositDate}
-            depositOdooSession={depositOdooSession}
-            setDepositOdooSession={setDepositOdooSession}
-            depositStatus={depositStatus}
-            setDepositStatus={setDepositStatus}
-            depositNotes={depositNotes}
-            setDepositNotes={setDepositNotes}
-            handoverDate={handoverDate}
-            setHandoverDate={setHandoverDate}
-            handoverOdooSession={handoverOdooSession}
-            setHandoverOdooSession={setHandoverOdooSession}
-            handoverStatus={handoverStatus}
-            setHandoverStatus={setHandoverStatus}
-            handoverNotes={handoverNotes}
-            setHandoverNotes={setHandoverNotes}
-            invoiceDate={invoiceDate}
-            setInvoiceDate={setInvoiceDate}
-            invoiceStatus={invoiceStatus}
-            setInvoiceStatus={setInvoiceStatus}
+            {...formState}
+            {...setters}
             processedRecords={processedRecords}
             onEdit={handleEdit}
             onDelete={handleDelete}
