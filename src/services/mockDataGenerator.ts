@@ -1,32 +1,66 @@
-import { branches } from './branchService';
-import { calculateAverageData } from '../utils/calculationUtils';
-
 const getProcessedRecords = () => {
   const storedRecords = localStorage.getItem('processedRecords');
   return storedRecords ? JSON.parse(storedRecords) : [];
 };
 
+const calculateStreakFromStatus = (records: any[], statusKey: string) => {
+  // Sort records by date in descending order
+  const sortedRecords = [...records].sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  let currentStreak = 0;
+  let longestStreak = 0;
+
+  // Calculate current streak
+  for (const record of sortedRecords) {
+    if (record[statusKey] === 'approved') {
+      currentStreak++;
+      longestStreak = Math.max(longestStreak, currentStreak);
+    } else {
+      break; // Break on first non-approved record
+    }
+  }
+
+  return { currentStreak, longestStreak };
+};
+
 const calculateStreaks = (records: any[], branchId: string) => {
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchId === branchId);
+    : records.filter(record => record.branchName === branchId);
+
+  const handoverStreak = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
+  const depositStreak = calculateStreakFromStatus(filteredRecords, 'depositStatus');
+  const invoiceStreak = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
 
   return {
-    handover: filteredRecords.filter(r => r.handoverStatus === 'approved').length,
-    deposits: filteredRecords.filter(r => r.depositStatus === 'approved').length,
-    invoices: filteredRecords.filter(r => r.invoiceStatus === 'approved').length,
+    handover: handoverStreak.currentStreak,
+    deposits: depositStreak.currentStreak,
+    invoices: invoiceStreak.currentStreak,
   };
 };
 
 const calculateLongestStreaks = (records: any[], branchId: string) => {
-  // For now, using the same logic as current streaks
-  return calculateStreaks(records, branchId);
+  const filteredRecords = branchId === 'all' 
+    ? records 
+    : records.filter(record => record.branchName === branchId);
+
+  const handoverStreak = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
+  const depositStreak = calculateStreakFromStatus(filteredRecords, 'depositStatus');
+  const invoiceStreak = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
+
+  return {
+    handover: handoverStreak.longestStreak,
+    deposits: depositStreak.longestStreak,
+    invoices: invoiceStreak.longestStreak,
+  };
 };
 
 const calculateSubmissions = (records: any[], branchId: string) => {
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchId === branchId);
+    : records.filter(record => record.branchName === branchId);
 
   return {
     handover: filteredRecords.length,
@@ -38,7 +72,7 @@ const calculateSubmissions = (records: any[], branchId: string) => {
 const calculateApprovedSubmissions = (records: any[], branchId: string) => {
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchId === branchId);
+    : records.filter(record => record.branchName === branchId);
 
   return {
     handover: filteredRecords.filter(r => r.handoverStatus === 'approved').length,
@@ -50,7 +84,7 @@ const calculateApprovedSubmissions = (records: any[], branchId: string) => {
 const calculateRejectedSubmissions = (records: any[], branchId: string) => {
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchId === branchId);
+    : records.filter(record => record.branchName === branchId);
 
   return {
     handover: filteredRecords.filter(r => r.handoverStatus === 'rejected').length,
@@ -59,24 +93,15 @@ const calculateRejectedSubmissions = (records: any[], branchId: string) => {
   };
 };
 
-const generateBranchData = (branchId: string, dateRange: string) => {
-  const records = getProcessedRecords();
-  
-  return {
-    streaks: calculateStreaks(records, branchId),
-    longestStreaks: calculateLongestStreaks(records, branchId),
-    totalSubmissions: calculateSubmissions(records, branchId),
-    approvedSubmissions: calculateApprovedSubmissions(records, branchId),
-    rejectedSubmissions: calculateRejectedSubmissions(records, branchId)
-  };
-};
-
-const generateSubmissionHistory = (branchId: string, dateRange: string) => {
+const generateSubmissionHistory = (records: any[], branchId: string, dateRange: string) => {
   const days = dateRange === "7d" ? 7 : 
               dateRange === "30d" ? 30 : 
               dateRange === "90d" ? 90 : 180;
   
-  const records = getProcessedRecords();
+  const filteredRecords = branchId === 'all' 
+    ? records 
+    : records.filter(record => record.branchName === branchId);
+  
   const data = [];
   
   for (let i = days - 1; i >= 0; i--) {
@@ -84,11 +109,7 @@ const generateSubmissionHistory = (branchId: string, dateRange: string) => {
     date.setDate(date.getDate() - i);
     const currentDate = date.toISOString().split('T')[0];
     
-    const dayRecords = records.filter(record => 
-      record.date === currentDate && 
-      (branchId === 'all' || record.branchId === branchId)
-    );
-
+    const dayRecords = filteredRecords.filter(record => record.date === currentDate);
     const totalRecords = dayRecords.length;
     const approvedRecords = dayRecords.filter(r => 
       r.handoverStatus === 'approved' && 
@@ -110,18 +131,14 @@ const generateSubmissionHistory = (branchId: string, dateRange: string) => {
 };
 
 export const generateMockData = (branchId: string, dateRange: string = "7d") => {
-  if (branchId === "all") {
-    const branchesData = branches.map(branch => 
-      generateBranchData(branch.id, dateRange)
-    );
-    return {
-      ...calculateAverageData(branchesData),
-      submissionHistory: generateSubmissionHistory(branchId, dateRange)
-    };
-  }
+  const records = getProcessedRecords();
 
   return {
-    ...generateBranchData(branchId, dateRange),
-    submissionHistory: generateSubmissionHistory(branchId, dateRange)
+    streaks: calculateStreaks(records, branchId),
+    longestStreaks: calculateLongestStreaks(records, branchId),
+    totalSubmissions: calculateSubmissions(records, branchId),
+    approvedSubmissions: calculateApprovedSubmissions(records, branchId),
+    rejectedSubmissions: calculateRejectedSubmissions(records, branchId),
+    submissionHistory: generateSubmissionHistory(records, branchId, dateRange)
   };
 };
