@@ -4,39 +4,43 @@ const getProcessedRecords = () => {
 };
 
 const calculateStreakFromStatus = (records: any[], statusKey: string) => {
-  // Sort records by date in descending order (newest first)
+  if (!records.length) return { currentStreak: 0, longestStreak: 0 };
+
+  // Sort records by date in ascending order (oldest first)
   const sortedRecords = [...records].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
+    new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   let currentStreak = 0;
   let longestStreak = 0;
-  let previousDate: Date | null = null;
+  let lastDate: Date | null = null;
 
-  // Calculate current streak
   for (const record of sortedRecords) {
     const currentDate = new Date(record.date);
     
-    if (record[statusKey] === 'approved') {
-      // If this is the first approved record
-      if (previousDate === null) {
+    if (record[statusKey] === 'Approved') {
+      if (!lastDate) {
+        // First approved record
         currentStreak = 1;
       } else {
-        // Check if the dates are consecutive
         const dayDifference = Math.floor(
-          (previousDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+          (currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
         );
         
-        if (dayDifference === 1) {
+        if (dayDifference <= 1) {
+          // Consecutive day or same day
           currentStreak++;
         } else {
-          break; // Break streak if days are not consecutive
+          // Gap in dates, reset streak
+          currentStreak = 1;
         }
       }
-      previousDate = currentDate;
+      lastDate = currentDate;
       longestStreak = Math.max(longestStreak, currentStreak);
     } else {
-      break; // Break on first non-approved record
+      // Reset streak on non-approved records
+      currentStreak = 0;
+      lastDate = null;
     }
   }
 
@@ -48,14 +52,14 @@ const calculateStreaks = (records: any[], branchId: string) => {
     ? records 
     : records.filter(record => record.branchName === branchId);
 
-  const handoverStreak = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
-  const depositStreak = calculateStreakFromStatus(filteredRecords, 'depositStatus');
-  const invoiceStreak = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
+  const handoverResult = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
+  const depositResult = calculateStreakFromStatus(filteredRecords, 'depositStatus');
+  const invoiceResult = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
 
   return {
-    handover: handoverStreak.currentStreak,
-    deposits: depositStreak.currentStreak,
-    invoices: invoiceStreak.currentStreak,
+    handover: handoverResult.currentStreak,
+    deposits: depositResult.currentStreak,
+    invoices: invoiceResult.currentStreak,
   };
 };
 
@@ -64,14 +68,14 @@ const calculateLongestStreaks = (records: any[], branchId: string) => {
     ? records 
     : records.filter(record => record.branchName === branchId);
 
-  const handoverStreak = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
-  const depositStreak = calculateStreakFromStatus(filteredRecords, 'depositStatus');
-  const invoiceStreak = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
+  const handoverResult = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
+  const depositResult = calculateStreakFromStatus(filteredRecords, 'depositStatus');
+  const invoiceResult = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
 
   return {
-    handover: handoverStreak.longestStreak,
-    deposits: depositStreak.longestStreak,
-    invoices: invoiceStreak.longestStreak,
+    handover: handoverResult.longestStreak,
+    deposits: depositResult.longestStreak,
+    invoices: invoiceResult.longestStreak,
   };
 };
 
@@ -93,9 +97,9 @@ const calculateApprovedSubmissions = (records: any[], branchId: string) => {
     : records.filter(record => record.branchName === branchId);
 
   return {
-    handover: filteredRecords.filter(r => r.handoverStatus === 'approved').length,
-    deposits: filteredRecords.filter(r => r.depositStatus === 'approved').length,
-    invoices: filteredRecords.filter(r => r.invoiceStatus === 'approved').length,
+    handover: filteredRecords.filter(r => r.handoverStatus === 'Approved').length,
+    deposits: filteredRecords.filter(r => r.depositStatus === 'Approved').length,
+    invoices: filteredRecords.filter(r => r.invoiceStatus === 'Approved').length,
   };
 };
 
@@ -105,9 +109,9 @@ const calculateRejectedSubmissions = (records: any[], branchId: string) => {
     : records.filter(record => record.branchName === branchId);
 
   return {
-    handover: filteredRecords.filter(r => r.handoverStatus === 'rejected').length,
-    deposits: filteredRecords.filter(r => r.depositStatus === 'rejected').length,
-    invoices: filteredRecords.filter(r => r.invoiceStatus === 'rejected').length,
+    handover: filteredRecords.filter(r => r.handoverStatus === 'Rejected').length,
+    deposits: filteredRecords.filter(r => r.depositStatus === 'Rejected').length,
+    invoices: filteredRecords.filter(r => r.invoiceStatus === 'Rejected').length,
   };
 };
 
@@ -130,9 +134,9 @@ const generateSubmissionHistory = (records: any[], branchId: string, dateRange: 
     const dayRecords = filteredRecords.filter(record => record.date === currentDate);
     const totalRecords = dayRecords.length;
     const approvedRecords = dayRecords.filter(r => 
-      r.handoverStatus === 'approved' && 
-      r.depositStatus === 'approved' && 
-      r.invoiceStatus === 'approved'
+      r.handoverStatus === 'Approved' && 
+      r.depositStatus === 'Approved' && 
+      r.invoiceStatus === 'Approved'
     ).length;
 
     const successRate = totalRecords > 0 
