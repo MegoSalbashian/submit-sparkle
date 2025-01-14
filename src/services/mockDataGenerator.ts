@@ -4,18 +4,36 @@ const getProcessedRecords = () => {
 };
 
 const calculateStreakFromStatus = (records: any[], statusKey: string) => {
-  // Sort records by date in descending order
+  // Sort records by date in descending order (newest first)
   const sortedRecords = [...records].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   let currentStreak = 0;
   let longestStreak = 0;
+  let previousDate: Date | null = null;
 
   // Calculate current streak
   for (const record of sortedRecords) {
+    const currentDate = new Date(record.date);
+    
     if (record[statusKey] === 'approved') {
-      currentStreak++;
+      // If this is the first approved record
+      if (previousDate === null) {
+        currentStreak = 1;
+      } else {
+        // Check if the dates are consecutive
+        const dayDifference = Math.floor(
+          (previousDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        
+        if (dayDifference === 1) {
+          currentStreak++;
+        } else {
+          break; // Break streak if days are not consecutive
+        }
+      }
+      previousDate = currentDate;
       longestStreak = Math.max(longestStreak, currentStreak);
     } else {
       break; // Break on first non-approved record
