@@ -8,7 +8,7 @@ export const isSuccessfulStatus = (type: string, status: string | null) => {
     case 'deposits':
       return status === 'approved';
     case 'invoices':
-      return status !== 'missing' && status !== 'rejected';
+      return status === 'approved';
     default:
       return false;
   }
