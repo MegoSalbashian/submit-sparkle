@@ -47,13 +47,13 @@ export const useDashboardData = (
     let longestStreak = 0;
     let lastSuccess = true;
 
-    // Sort records by date in descending order
     const sortedRecords = [...records].sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
     sortedRecords.forEach((record) => {
-      const status = record[`${type}_status`]?.toLowerCase();
+      const statusKey = `${type}_status`;
+      const status = record[statusKey]?.toLowerCase();
       const isSuccess = status === 'approved';
       
       if (isSuccess && lastSuccess) {
@@ -79,17 +79,18 @@ export const useDashboardData = (
         query = query.eq('branch_id', selectedBranch);
       }
 
-      const daysToSubtract = {
-        '7d': 7,
-        '30d': 30,
-        '90d': 90,
-        'all': 365
-      }[dateRange] || 7;
+      // Only filter by date if not "all time"
+      if (dateRange !== 'all') {
+        const daysToSubtract = {
+          '7d': 7,
+          '30d': 30,
+          '90d': 90,
+        }[dateRange] || 7;
 
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysToSubtract);
-
-      query = query.gte('date', startDate.toISOString().split('T')[0]);
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - daysToSubtract);
+        query = query.gte('date', startDate.toISOString().split('T')[0]);
+      }
 
       const { data: records, error } = await query;
 
@@ -98,9 +99,8 @@ export const useDashboardData = (
         return;
       }
 
-      console.log('Fetched records:', records);
-
       const safeRecords = records || [];
+      console.log('Raw fetched records:', safeRecords);
 
       // Calculate performance metrics
       const metrics: DashboardMetrics = {
@@ -149,7 +149,7 @@ export const useDashboardData = (
         successRate: (stats.successful / stats.total) * 100
       })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-      console.log('History data:', historyData);
+      console.log('Processed history data:', historyData);
       setSubmissionHistory(historyData);
 
       // Calculate branch streaks

@@ -24,10 +24,7 @@ export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
     );
   }
 
-  const successRates = data.map(item => item.successRate);
-  const minRate = Math.min(...successRates, 0); // Ensure we include 0 as minimum
-  const maxRate = Math.max(...successRates, 100); // Ensure we include 100 as maximum
-  const padding = 5; // Fixed padding of 5% for better visualization
+  console.log('Chart data:', data);
 
   return (
     <Card className="dashboard-card mb-8">
@@ -36,7 +33,7 @@ export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart 
             data={data} 
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
@@ -47,7 +44,7 @@ export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
               height={60}
             />
             <YAxis 
-              domain={[Math.max(0, minRate - padding), Math.min(100, maxRate + padding)]}
+              domain={[0, 100]}
               tickFormatter={(value) => `${value.toFixed(1)}%`}
             />
             <Tooltip 
