@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateMetrics } from "@/utils/status/metricsCalculators";
 import { DashboardMetrics } from "@/types/dashboard";
+import { logger } from "@/utils/logger";
 
 export const usePerformanceMetrics = (selectedBranch: string, dateRange: string) => {
   const [performanceMetrics, setPerformanceMetrics] = useState<DashboardMetrics>({
@@ -34,7 +35,10 @@ export const usePerformanceMetrics = (selectedBranch: string, dateRange: string)
         const { data: records, error } = await query;
 
         if (error) {
-          console.error('Error fetching records:', error);
+          logger.error('Error fetching records:', {
+            component: 'usePerformanceMetrics',
+            data: error
+          });
           return;
         }
 
@@ -52,10 +56,16 @@ export const usePerformanceMetrics = (selectedBranch: string, dateRange: string)
           invoices: calculateMetrics(sortedRecords, 'invoices')
         };
 
-        console.log('Calculated metrics:', metrics);
+        logger.info('Calculated metrics:', {
+          component: 'usePerformanceMetrics',
+          data: metrics
+        });
         setPerformanceMetrics(metrics);
       } catch (error) {
-        console.error('Error in fetchPerformanceMetrics:', error);
+        logger.error('Error in fetchPerformanceMetrics:', {
+          component: 'usePerformanceMetrics',
+          data: error
+        });
       }
     };
 

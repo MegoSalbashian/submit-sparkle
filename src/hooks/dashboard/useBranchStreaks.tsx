@@ -4,6 +4,7 @@ import { Branch } from "@/services/branchService";
 import { calculateBranchStreak } from "@/utils/status/streakCalculators";
 import { isSuccessfulStatus } from "@/utils/status/statusCheckers";
 import { BranchStreak } from "@/types/dashboard";
+import { logger } from "@/utils/logger";
 
 export const useBranchStreaks = (
   selectedBranch: string,
@@ -36,7 +37,10 @@ export const useBranchStreaks = (
         const { data: records, error } = await query;
 
         if (error) {
-          console.error('Error fetching records:', error);
+          logger.error('Error fetching records:', { 
+            component: 'useBranchStreaks',
+            data: error
+          });
           return;
         }
 
@@ -77,7 +81,10 @@ export const useBranchStreaks = (
 
         setBranchStreaks(branchMetrics);
       } catch (error) {
-        console.error('Error in fetchBranchStreaks:', error);
+        logger.error('Error in fetchBranchStreaks:', {
+          component: 'useBranchStreaks',
+          data: error
+        });
       }
     };
 

@@ -1,6 +1,6 @@
 import React from "react";
-import { BranchSelector } from "./filters/BranchSelector";
-import { DateRangeSelector } from "../DateRangeSelector";
+import { BranchFilter } from "./filters/BranchFilter";
+import { DateRangeFilter } from "./filters/DateRangeFilter";
 import { Branch } from "@/services/branchService";
 
 interface DashboardFiltersProps {
@@ -20,13 +20,13 @@ export const DashboardFilters = ({
 }: DashboardFiltersProps) => {
   return (
     <div className="flex gap-4">
-      <BranchSelector
+      <BranchFilter
         selectedBranch={selectedBranch}
         onBranchChange={onBranchChange}
         branches={branches}
       />
       
-      <DateRangeSelector 
+      <DateRangeFilter 
         value={dateRange} 
         onValueChange={onDateRangeChange} 
       />

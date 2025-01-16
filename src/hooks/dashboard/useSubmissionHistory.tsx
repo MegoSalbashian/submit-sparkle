@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isSuccessfulStatus } from "@/utils/status/statusCheckers";
 import { SubmissionHistoryItem } from "@/types/dashboard";
+import { logger } from "@/utils/logger";
 
 export const useSubmissionHistory = (selectedBranch: string, dateRange: string) => {
   const [submissionHistory, setSubmissionHistory] = useState<SubmissionHistoryItem[]>([]);
@@ -30,7 +31,10 @@ export const useSubmissionHistory = (selectedBranch: string, dateRange: string) 
         const { data: records, error } = await query;
 
         if (error) {
-          console.error('Error fetching records:', error);
+          logger.error('Error fetching records:', {
+            component: 'useSubmissionHistory',
+            data: error
+          });
           return;
         }
 
@@ -66,7 +70,10 @@ export const useSubmissionHistory = (selectedBranch: string, dateRange: string) 
 
         setSubmissionHistory(historyData);
       } catch (error) {
-        console.error('Error in fetchSubmissionHistory:', error);
+        logger.error('Error in fetchSubmissionHistory:', {
+          component: 'useSubmissionHistory',
+          data: error
+        });
       }
     };
 
