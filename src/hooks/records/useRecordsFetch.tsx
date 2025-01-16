@@ -36,9 +36,11 @@ export const useRecordsFetch = (branchId?: string, date?: string) => {
   return useQuery({
     queryKey: ['records', branchId, date],
     queryFn: fetchRecords,
-    onError: (error) => {
-      console.error("Query error:", error);
-      toast.error("Failed to fetch records");
+    meta: {
+      onError: (error: Error) => {
+        console.error("Query error:", error);
+        toast.error("Failed to fetch records");
+      }
     }
   });
 };
