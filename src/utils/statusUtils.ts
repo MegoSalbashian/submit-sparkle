@@ -33,21 +33,20 @@ export const calculateMetrics = (records: any[], type: string) => {
   // Count approved records with detailed logging
   const approved = records.filter(record => {
     const status = record[statusKey];
-    const isApproved = status && status.toLowerCase() === 'approved';
     console.log(`Record ${type} status:`, {
       recordId: record.id,
       status: status,
-      isApproved: isApproved,
+      isApproved: status === 'approved',
       statusKey: statusKey,
       rawValue: record[statusKey]
     });
-    return isApproved;
+    return status === 'approved';
   }).length;
 
   // Count rejected records
   const rejected = records.filter(record => {
     const status = record[statusKey];
-    return status && status.toLowerCase() === 'rejected';
+    return status === 'rejected';
   }).length;
 
   const { currentStreak, longestStreak } = calculateStreak(records, type);
