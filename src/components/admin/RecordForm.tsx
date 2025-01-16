@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { branches } from "@/data/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { getBranches } from "@/services/branchService";
 import {
   Select,
   SelectContent,
@@ -69,6 +70,10 @@ export const RecordForm = ({
   onSubmit,
 }: RecordFormProps) => {
   const { toast } = useToast();
+  const { data: branches = [] } = useQuery({
+    queryKey: ['branches'],
+    queryFn: getBranches,
+  });
 
   return (
     <Card className="p-6">

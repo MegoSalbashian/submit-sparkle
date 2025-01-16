@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { branches } from "@/data/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { getBranches } from "@/services/branchService";
 
 const STORAGE_KEY = 'processedRecords';
 
 export const useRecordsManager = () => {
   const [processedRecords, setProcessedRecords] = useState<any[]>([]);
   const { toast } = useToast();
+  const { data: branches = [] } = useQuery({
+    queryKey: ['branches'],
+    queryFn: getBranches,
+  });
 
   useEffect(() => {
     const savedRecords = localStorage.getItem(STORAGE_KEY);
