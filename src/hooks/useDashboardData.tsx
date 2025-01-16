@@ -73,6 +73,8 @@ export const useDashboardData = (
           return;
         }
 
+        console.log('Raw records from database:', records);
+
         const safeRecords = records || [];
         
         // Sort records by date in descending order (newest first)
@@ -80,12 +82,16 @@ export const useDashboardData = (
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
+        console.log('Sorted records:', sortedRecords);
+
         // Calculate metrics for each type
         const metrics: DashboardMetrics = {
           handover: calculateMetrics(sortedRecords, 'handover'),
           deposits: calculateMetrics(sortedRecords, 'deposits'),
           invoices: calculateMetrics(sortedRecords, 'invoices')
         };
+
+        console.log('Calculated metrics:', metrics);
 
         setPerformanceMetrics(metrics);
 

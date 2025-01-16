@@ -1,6 +1,9 @@
 export const isSuccessfulStatus = (type: string, status: string | null) => {
+  console.log(`Checking status for ${type}:`, { status });
   if (!status) return false;
-  return status === 'approved';
+  const isApproved = status === 'approved';
+  console.log(`Status check result for ${type}:`, { status, isApproved });
+  return isApproved;
 };
 
 export const calculateStreak = (records: any[], type: string): { currentStreak: number; longestStreak: number } => {
@@ -17,6 +20,7 @@ export const calculateStreak = (records: any[], type: string): { currentStreak: 
     }
   }
 
+  console.log(`Streak calculation for ${type}:`, { currentStreak, longestStreak });
   return { currentStreak, longestStreak };
 };
 
@@ -24,9 +28,9 @@ export const calculateMetrics = (records: any[], type: string) => {
   const statusKey = `${type}_status`;
   const total = records.length;
   
-  console.log(`Calculating metrics for ${type}:`, {
+  console.log(`Starting metrics calculation for ${type}:`, {
     totalRecords: total,
-    firstFewRecords: records.slice(0, 3).map(r => ({
+    allRecords: records.map(r => ({
       id: r.id,
       status: r[statusKey],
       date: r.date
@@ -42,17 +46,17 @@ export const calculateMetrics = (records: any[], type: string) => {
       id: record.id,
       date: record.date,
       status: status,
-      isApproved: isApproved
+      isApproved: isApproved,
+      rawStatus: record[statusKey]
     });
     
     return isApproved;
   }).length;
 
   // Count rejected records
-  const rejected = records.filter(record => {
-    const status = record[statusKey];
-    return status === 'rejected';
-  }).length;
+  const rejected = records.filter(record => 
+    record[statusKey] === 'rejected'
+  ).length;
 
   const { currentStreak, longestStreak } = calculateStreak(records, type);
 
@@ -61,7 +65,8 @@ export const calculateMetrics = (records: any[], type: string) => {
     approved,
     rejected,
     currentStreak,
-    longestStreak
+    longestStreak,
+    recordsWithApprovedStatus: records.filter(r => r[statusKey] === 'approved').length
   });
 
   return {
@@ -74,8 +79,13 @@ export const calculateMetrics = (records: any[], type: string) => {
 };
 
 export const calculateBranchStreak = (records: any[], type: string): number => {
-  let streak = 0;
   const statusKey = `${type}_status`;
+  let streak = 0;
+  
+  console.log(`Calculating branch streak for ${type}:`, {
+    recordCount: records.length,
+    statuses: records.map(r => ({ id: r.id, status: r[statusKey] }))
+  });
   
   for (const record of records) {
     const status = record[statusKey];
@@ -85,5 +95,7 @@ export const calculateBranchStreak = (records: any[], type: string): number => {
       break;
     }
   }
+
+  console.log(`Branch streak result for ${type}:`, { streak });
   return streak;
 };
