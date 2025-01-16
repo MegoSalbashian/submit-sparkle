@@ -19,7 +19,10 @@ export const calculateStreak = (records: any[], type: string): { currentStreak: 
   let longestStreak = 0;
 
   for (const record of records) {
-    const statusKey = `${type}_status`;
+    const statusKey = type === 'deposits' ? 'depositStatus' : 
+                     type === 'handover' ? 'handoverStatus' : 
+                     'invoiceStatus';
+                     
     if (isSuccessfulStatus(type, record[statusKey])) {
       currentStreak++;
       longestStreak = Math.max(longestStreak, currentStreak);
@@ -32,10 +35,14 @@ export const calculateStreak = (records: any[], type: string): { currentStreak: 
 };
 
 export const calculateMetrics = (records: any[], type: string) => {
-  const statusKey = `${type}_status`;
+  // Map the type to the correct status field name in the record
+  const statusKey = type === 'deposits' ? 'depositStatus' : 
+                   type === 'handover' ? 'handoverStatus' : 
+                   'invoiceStatus';
+                   
   const total = records.length;
   
-  // Explicitly count approved records
+  // Explicitly count approved records using the correct status field
   const approved = records.filter(record => {
     const status = record[statusKey]?.toLowerCase();
     return status === 'approved';
@@ -60,7 +67,9 @@ export const calculateMetrics = (records: any[], type: string) => {
 
 export const calculateBranchStreak = (records: any[], type: string): number => {
   let streak = 0;
-  const statusKey = `${type}_status`;
+  const statusKey = type === 'deposits' ? 'depositStatus' : 
+                   type === 'handover' ? 'handoverStatus' : 
+                   'invoiceStatus';
   
   for (const record of records) {
     const status = record[statusKey]?.toLowerCase();
