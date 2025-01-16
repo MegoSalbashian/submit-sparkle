@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -144,7 +144,7 @@ export const useRecordsManager = () => {
   };
 
   // Fetch records when the hook is initialized
-  useState(() => {
+  useEffect(() => {
     fetchRecords();
   }, []);
 
