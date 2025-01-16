@@ -1,17 +1,37 @@
 export const isSuccessfulStatus = (type: string, status: string | null) => {
-  console.log(`Checking status for ${type}:`, { status });
+  console.log(`Checking ${type} status:`, { status });
   if (!status) return false;
-  const isApproved = status.toLowerCase() === 'approved';
-  console.log(`Status check result for ${type}:`, { status, isApproved });
+  
+  // Convert to lowercase and check for exact match
+  const normalizedStatus = status.toLowerCase();
+  const isApproved = normalizedStatus === 'approved';
+  
+  console.log(`${type} status check result:`, { 
+    originalStatus: status,
+    normalizedStatus,
+    isApproved 
+  });
+  
   return isApproved;
 };
 
 export const calculateStreak = (records: any[], type: string): { currentStreak: number; longestStreak: number } => {
   let currentStreak = 0;
   let longestStreak = 0;
+  
+  console.log(`Calculating streak for ${type} with records:`, records);
 
   for (const record of records) {
-    const statusKey = `${type}_status`;
+    const statusKey = type === 'deposits' ? 'deposit_status' : 
+                     type === 'handover' ? 'handover_status' : 
+                     'invoice_status';
+                     
+    console.log(`Checking record for ${type}:`, {
+      recordId: record.id,
+      statusKey,
+      status: record[statusKey]
+    });
+
     if (isSuccessfulStatus(type, record[statusKey])) {
       currentStreak++;
       longestStreak = Math.max(longestStreak, currentStreak);
@@ -20,65 +40,64 @@ export const calculateStreak = (records: any[], type: string): { currentStreak: 
     }
   }
 
-  console.log(`Streak calculation for ${type}:`, { currentStreak, longestStreak });
+  console.log(`Streak calculation result for ${type}:`, { currentStreak, longestStreak });
   return { currentStreak, longestStreak };
 };
 
 export const calculateMetrics = (records: any[], type: string) => {
-  const statusKey = `${type}_status`;
+  const statusKey = type === 'deposits' ? 'deposit_status' : 
+                   type === 'handover' ? 'handover_status' : 
+                   'invoice_status';
+  
+  console.log(`Calculating metrics for ${type} using statusKey:`, statusKey);
+  console.log('Records:', records);
+  
   const total = records.length;
   
-  // Log the raw records first
-  console.log(`Raw records for ${type} metrics:`, JSON.stringify(records, null, 2));
-  
-  // Count approved records with detailed logging
   const approved = records.filter(record => {
     const status = record[statusKey];
-    console.log(`Checking record for ${type}:`, {
-      id: record.id,
-      status: status,
-      statusKey: statusKey,
-      record: record
+    const isApproved = isSuccessfulStatus(type, status);
+    console.log(`Checking ${type} record:`, {
+      recordId: record.id,
+      status,
+      isApproved
     });
-    return isSuccessfulStatus(type, status);
+    return isApproved;
   }).length;
 
-  // Count rejected records
-  const rejected = records.filter(record => 
-    record[statusKey]?.toLowerCase() === 'rejected'
-  ).length;
+  const rejected = records.filter(record => {
+    const status = record[statusKey]?.toLowerCase();
+    const isRejected = status === 'rejected';
+    console.log(`Checking rejected ${type} record:`, {
+      recordId: record.id,
+      status,
+      isRejected
+    });
+    return isRejected;
+  }).length;
 
   const { currentStreak, longestStreak } = calculateStreak(records, type);
 
-  // Log final metrics calculation
-  console.log(`Final metrics for ${type}:`, {
-    total,
-    approved,
-    rejected,
-    streak: currentStreak,
-    longestStreak,
-    recordsWithStatus: records.map(r => ({
-      id: r.id,
-      status: r[statusKey],
-      date: r.date
-    }))
-  });
-
-  return {
+  const metrics = {
     total,
     approved,
     rejected,
     streak: currentStreak,
     longestStreak
   };
+
+  console.log(`Final metrics for ${type}:`, metrics);
+  return metrics;
 };
 
 export const calculateBranchStreak = (records: any[], type: string): number => {
-  const statusKey = `${type}_status`;
-  let streak = 0;
+  const statusKey = type === 'deposits' ? 'deposit_status' : 
+                   type === 'handover' ? 'handover_status' : 
+                   'invoice_status';
   
   console.log(`Calculating branch streak for ${type}:`, {
     recordCount: records.length,
+    statusKey,
     records: records.map(r => ({
       id: r.id,
       status: r[statusKey],
@@ -86,9 +105,19 @@ export const calculateBranchStreak = (records: any[], type: string): number => {
     }))
   });
   
+  let streak = 0;
+  
   for (const record of records) {
     const status = record[statusKey];
-    if (isSuccessfulStatus(type, status)) {
+    const isApproved = isSuccessfulStatus(type, status);
+    
+    console.log(`Checking record for branch streak (${type}):`, {
+      recordId: record.id,
+      status,
+      isApproved
+    });
+    
+    if (isApproved) {
       streak++;
     } else {
       break;
