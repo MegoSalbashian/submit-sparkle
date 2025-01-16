@@ -2,7 +2,6 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { StreakCounter } from "../StreakCounter";
 import { MetricsDisplay } from "./performance/MetricsDisplay";
-import { usePerformanceMetrics } from "@/hooks/dashboard/usePerformanceMetrics";
 import { SubmissionType } from "@/types/dashboard";
 
 interface PerformanceCardProps {
@@ -24,14 +23,7 @@ export const PerformanceCard = ({
   rejected,
   type
 }: PerformanceCardProps) => {
-  const { rejectedLabel } = usePerformanceMetrics({
-    streakValue,
-    longestStreak,
-    total,
-    approved,
-    rejected,
-    type
-  });
+  const rejectedLabel = type === 'invoices' ? 'Missing invoices' : 'Rejected';
 
   return (
     <Card className="dashboard-card">

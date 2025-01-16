@@ -1,33 +1,16 @@
-import { SubmissionType } from "@/types/dashboard";
+import { SubmissionType, PerformanceMetrics } from "@/types/dashboard";
 
 interface PerformanceMetricsProps {
-  streakValue: number;
-  longestStreak: number;
-  total: number;
-  approved: number;
-  rejected: number;
   type: SubmissionType;
 }
 
-export const usePerformanceMetrics = ({
-  streakValue,
-  longestStreak,
-  total,
-  approved,
-  rejected,
-  type
-}: PerformanceMetricsProps) => {
-  const getRejectedLabel = (type: SubmissionType) => {
-    return type === 'invoices' ? 'Missing invoices' : 'Rejected';
-  };
-
-  const getSuccessRate = () => {
-    if (total === 0) return 0;
-    return ((approved / total) * 100).toFixed(1);
-  };
-
+export const usePerformanceMetrics = ({ type }: PerformanceMetricsProps): PerformanceMetrics => {
+  // This is a mock implementation - replace with actual data fetching logic
   return {
-    rejectedLabel: getRejectedLabel(type),
-    successRate: getSuccessRate(),
+    total: 0,
+    approved: 0,
+    rejected: 0,
+    streak: 0,
+    longestStreak: 0
   };
 };
