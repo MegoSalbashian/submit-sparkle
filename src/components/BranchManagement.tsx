@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { addBranch, updateBranch, deleteBranch } from "@/services/branchService";
+import { addBranch, updateBranch, deleteBranch, getBranches, type Branch } from "@/services/branchService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
@@ -21,9 +21,9 @@ export const BranchManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: branches = [] } = useQuery({
+  const { data: branches = [] } = useQuery<Branch[]>({
     queryKey: ['branches'],
-    queryFn: () => queryClient.getQueryData(['branches']) || [],
+    queryFn: getBranches,
   });
 
   const handleAddBranch = async (e: React.FormEvent) => {
@@ -54,7 +54,7 @@ export const BranchManagement = () => {
     }
   };
 
-  const handleEdit = (branch: { id: string; name: string }) => {
+  const handleEdit = (branch: Branch) => {
     setEditingBranch({ ...branch, editedName: branch.name });
   };
 
