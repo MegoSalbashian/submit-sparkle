@@ -2,16 +2,8 @@ export const isSuccessfulStatus = (type: string, status: string | null) => {
   if (!status) return false;
   status = status.toLowerCase();
   
-  switch(type) {
-    case 'handover':
-      return status === 'approved';
-    case 'deposits':
-      return status === 'approved';
-    case 'invoices':
-      return status === 'approved';
-    default:
-      return false;
-  }
+  // All types use the same logic - if status is 'approved', it's successful
+  return status === 'approved';
 };
 
 export const calculateStreak = (records: any[], type: string): { currentStreak: number; longestStreak: number } => {
@@ -35,7 +27,7 @@ export const calculateMetrics = (records: any[], type: string) => {
   const statusKey = `${type}_status`;
   const total = records.length;
   
-  // Count approved records using the snake_case field names from database
+  // Count approved records consistently for all types
   const approved = records.filter(record => {
     const status = record[statusKey]?.toLowerCase();
     return status === 'approved';
