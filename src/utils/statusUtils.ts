@@ -1,8 +1,5 @@
 export const isSuccessfulStatus = (type: string, status: string | null) => {
   if (!status) return false;
-  status = status.toLowerCase();
-  
-  // All types use the same logic - if status is 'approved', it's successful
   return status === 'approved';
 };
 
@@ -27,20 +24,28 @@ export const calculateMetrics = (records: any[], type: string) => {
   const statusKey = `${type}_status`;
   const total = records.length;
   
-  // Add detailed logging for debugging
-  console.log(`Raw records for ${type}:`, records);
+  console.log(`Calculating metrics for ${type}:`, {
+    totalRecords: total,
+    firstFewRecords: records.slice(0, 3).map(r => ({
+      id: r.id,
+      status: r[statusKey],
+      date: r.date
+    }))
+  });
   
-  // Count approved records with detailed logging
+  // Count approved records
   const approved = records.filter(record => {
     const status = record[statusKey];
-    console.log(`Record ${type} status:`, {
-      recordId: record.id,
+    const isApproved = status === 'approved';
+    
+    console.log(`Record ${type} check:`, {
+      id: record.id,
+      date: record.date,
       status: status,
-      isApproved: status === 'approved',
-      statusKey: statusKey,
-      rawValue: record[statusKey]
+      isApproved: isApproved
     });
-    return status === 'approved';
+    
+    return isApproved;
   }).length;
 
   // Count rejected records
@@ -55,9 +60,8 @@ export const calculateMetrics = (records: any[], type: string) => {
     total,
     approved,
     rejected,
-    statusKey,
-    firstRecordStatus: records[0]?.[statusKey],
-    allStatuses: records.map(r => ({ id: r.id, status: r[statusKey] }))
+    currentStreak,
+    longestStreak
   });
 
   return {
@@ -74,7 +78,7 @@ export const calculateBranchStreak = (records: any[], type: string): number => {
   const statusKey = `${type}_status`;
   
   for (const record of records) {
-    const status = record[statusKey]?.toLowerCase();
+    const status = record[statusKey];
     if (status === 'approved') {
       streak++;
     } else {
