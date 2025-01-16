@@ -33,10 +33,10 @@ export const calculateMetrics = (records: any[], type: string) => {
     return status === 'approved';
   }).length;
 
-  // Calculate rejected as those that are not approved
+  // Count rejected records - only count explicitly rejected status
   const rejected = records.filter(record => {
     const status = record[statusKey]?.toLowerCase();
-    return status !== 'approved' && status !== null;
+    return status === 'rejected';
   }).length;
 
   const { currentStreak, longestStreak } = calculateStreak(records, type);
