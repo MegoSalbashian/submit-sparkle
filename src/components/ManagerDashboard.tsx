@@ -1,15 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { branches } from "@/services/branchService";
+import { getBranches } from "@/services/branchService";
 import { generateMockData } from "@/services/mockDataGenerator";
 import { DateRangeSelector } from "./DateRangeSelector";
 import { PerformanceCard } from "./dashboard/PerformanceCard";
 import { SuccessRateChart } from "./dashboard/SuccessRateChart";
 import { BranchOverviewTable } from "./dashboard/BranchOverviewTable";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 
 export const ManagerDashboard = () => {
   const [selectedBranch, setSelectedBranch] = useState<string>("all");
   const [dateRange, setDateRange] = useState<string>("7d");
+  const { toast } = useToast();
+  
+  const { data: branches = [], isError } = useQuery({
+    queryKey: ['branches'],
+    queryFn: getBranches,
+  });
+
+  useEffect(() => {
+    if (isError) {
+      toast({
+        title: "Error",
+        description: "Failed to load branches. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  }, [isError, toast]);
   
   const mockData = generateMockData(selectedBranch, dateRange);
 

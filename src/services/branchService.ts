@@ -1,100 +1,60 @@
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
 export type Branch = {
   id: string;
   name: string;
 };
 
-// Default branches that will always be available
-const DEFAULT_BRANCHES: Branch[] = [
-  { id: "1", name: "Abdoun" },
-  { id: "2", name: "Abdali" },
-  { id: "3", name: "7th Circle" },
-  { id: "4", name: "Sports City" },
-  { id: "5", name: "Yasmeen" },
-  { id: "6", name: "Abdoun Cirlce" },
-  { id: "7", name: "Swefiyeh" },
-  { id: "8", name: "Khalda" },
-  { id: "9", name: "Fuhais" },
-  { id: "10", name: "Kia Showroom" },
-  { id: "11", name: "Zarqa - Autostrad" },
-  { id: "12", name: "Zarqa - Karama" },
-  { id: "13", name: "University - Ahliyeh" },
-  { id: "14", name: "University - JU 1" },
-  { id: "15", name: "University - Hashimiyeh" },
-  { id: "16", name: "Jordan University Road 1 - Dastoor" },
-  { id: "17", name: "Airport - Arrivals" }
-];
-
-// Get branches from localStorage and merge with defaults
-const getStoredBranches = (): Branch[] => {
-  try {
-    const storedBranchesString = localStorage.getItem('custom_branches');
-    const storedBranches = storedBranchesString ? JSON.parse(storedBranchesString) : [];
+export const getBranches = async (): Promise<Branch[]> => {
+  const { data, error } = await supabase
+    .from('branches')
+    .select('*')
+    .order('name');
     
-    // Merge stored branches with default branches, preventing duplicates
-    const mergedBranches = [...DEFAULT_BRANCHES];
-    
-    storedBranches.forEach((storedBranch: Branch) => {
-      if (!mergedBranches.some(branch => branch.name.toLowerCase() === storedBranch.name.toLowerCase())) {
-        mergedBranches.push(storedBranch);
-      }
-    });
-    
-    return mergedBranches;
-  } catch (error) {
-    console.error('Error loading branches:', error);
-    return DEFAULT_BRANCHES;
-  }
-};
-
-// Initialize branches
-export let branches: Branch[] = getStoredBranches();
-
-// Update storage with only custom branches
-const updateStorage = () => {
-  try {
-    // Only store branches that aren't in the default set
-    const customBranches = branches.filter(
-      branch => !DEFAULT_BRANCHES.some(
-        defaultBranch => defaultBranch.name.toLowerCase() === branch.name.toLowerCase()
-      )
-    );
-    localStorage.setItem('custom_branches', JSON.stringify(customBranches));
-  } catch (error) {
-    console.error('Error saving branches:', error);
-  }
-};
-
-export const addBranch = (name: string) => {
-  if (branches.some(branch => branch.name.toLowerCase() === name.toLowerCase())) {
-    throw new Error("Branch with this name already exists");
-  }
-
-  const maxId = Math.max(...branches.map(branch => parseInt(branch.id)));
-  const newBranch = {
-    id: (maxId + 1).toString(),
-    name: name.trim(),
-  };
-  
-  branches = [...branches, newBranch];
-  updateStorage();
-  return newBranch;
-};
-
-export const updateBranch = (id: string, name: string) => {
-  const index = branches.findIndex(b => b.id === id);
-  if (index !== -1) {
-    branches[index].name = name.trim();
-    updateStorage();
-  }
-};
-
-export const deleteBranch = (id: string) => {
-  // Prevent deletion of default branches
-  const isDefaultBranch = DEFAULT_BRANCHES.some(branch => branch.id === id);
-  if (isDefaultBranch) {
-    throw new Error("Cannot delete default branch");
+  if (error) {
+    console.error('Error fetching branches:', error);
+    throw error;
   }
   
-  branches = branches.filter(b => b.id !== id);
-  updateStorage();
+  return data || [];
+};
+
+export const addBranch = async (name: string): Promise<Branch> => {
+  const { data, error } = await supabase
+    .from('branches')
+    .insert([{ name }])
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error adding branch:', error);
+    throw error;
+  }
+  
+  return data;
+};
+
+export const updateBranch = async (id: string, name: string): Promise<void> => {
+  const { error } = await supabase
+    .from('branches')
+    .update({ name })
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error updating branch:', error);
+    throw error;
+  }
+};
+
+export const deleteBranch = async (id: string): Promise<void> => {
+  const { error } = await supabase
+    .from('branches')
+    .delete()
+    .eq('id', id);
+    
+  if (error) {
+    console.error('Error deleting branch:', error);
+    throw error;
+  }
 };

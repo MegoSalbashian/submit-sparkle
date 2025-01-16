@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { branches, addBranch } from "@/data/mockData";
+import { addBranch, updateBranch, deleteBranch } from "@/services/branchService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -18,8 +19,14 @@ export const BranchManagement = () => {
   const [newBranchName, setNewBranchName] = useState("");
   const [editingBranch, setEditingBranch] = useState<{ id: string; name: string; editedName: string } | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleAddBranch = (e: React.FormEvent) => {
+  const { data: branches = [] } = useQuery({
+    queryKey: ['branches'],
+    queryFn: () => queryClient.getQueryData(['branches']) || [],
+  });
+
+  const handleAddBranch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBranchName.trim()) {
       toast({
@@ -30,12 +37,21 @@ export const BranchManagement = () => {
       return;
     }
 
-    addBranch(newBranchName.trim());
-    toast({
-      title: "Success",
-      description: "Branch added successfully",
-    });
-    setNewBranchName("");
+    try {
+      await addBranch(newBranchName.trim());
+      await queryClient.invalidateQueries({ queryKey: ['branches'] });
+      toast({
+        title: "Success",
+        description: "Branch added successfully",
+      });
+      setNewBranchName("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add branch",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEdit = (branch: { id: string; name: string }) => {
@@ -46,25 +62,37 @@ export const BranchManagement = () => {
     setEditingBranch(null);
   };
 
-  const handleUpdateBranch = (branch: { id: string; name: string; editedName: string }) => {
-    const branchIndex = branches.findIndex(b => b.id === branch.id);
-    if (branchIndex !== -1) {
-      branches[branchIndex].name = branch.editedName.trim();
+  const handleUpdateBranch = async (branch: { id: string; name: string; editedName: string }) => {
+    try {
+      await updateBranch(branch.id, branch.editedName.trim());
+      await queryClient.invalidateQueries({ queryKey: ['branches'] });
       toast({
         title: "Success",
         description: "Branch updated successfully",
       });
       setEditingBranch(null);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update branch",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleDeleteBranch = (branchId: string) => {
-    const branchIndex = branches.findIndex(b => b.id === branchId);
-    if (branchIndex !== -1) {
-      branches.splice(branchIndex, 1);
+  const handleDeleteBranch = async (branchId: string) => {
+    try {
+      await deleteBranch(branchId);
+      await queryClient.invalidateQueries({ queryKey: ['branches'] });
       toast({
         title: "Success",
         description: "Branch deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete branch",
+        variant: "destructive",
       });
     }
   };
