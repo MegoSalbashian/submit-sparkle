@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { isSuccessfulStatus } from "@/utils/statusUtils";
+import { SubmissionHistoryItem } from "@/types/dashboard";
 
 export const useSubmissionHistory = (selectedBranch: string, dateRange: string) => {
-  const [submissionHistory, setSubmissionHistory] = useState<any[]>([]);
+  const [submissionHistory, setSubmissionHistory] = useState<SubmissionHistoryItem[]>([]);
 
   useEffect(() => {
     const fetchSubmissionHistory = async () => {

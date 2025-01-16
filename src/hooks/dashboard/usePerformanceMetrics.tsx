@@ -1,20 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { calculateMetrics } from "@/utils/statusUtils";
-
-interface PerformanceMetrics {
-  total: number;
-  approved: number;
-  rejected: number;
-  streak: number;
-  longestStreak: number;
-}
-
-interface DashboardMetrics {
-  handover: PerformanceMetrics;
-  deposits: PerformanceMetrics;
-  invoices: PerformanceMetrics;
-}
+import { DashboardMetrics, PerformanceMetrics } from "@/types/dashboard";
 
 export const usePerformanceMetrics = (selectedBranch: string, dateRange: string) => {
   const [performanceMetrics, setPerformanceMetrics] = useState<DashboardMetrics>({

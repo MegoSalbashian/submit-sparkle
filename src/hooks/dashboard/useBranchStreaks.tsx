@@ -3,17 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Branch } from "@/services/branchService";
 import { calculateBranchStreak } from "@/utils/statusUtils";
 import { isSuccessfulStatus } from "@/utils/statusUtils";
-
-interface BranchStreak {
-  id: string;
-  name: string;
-  streaks: {
-    handover: number;
-    deposits: number;
-    invoices: number;
-  };
-  successRate: number;
-}
+import { BranchStreak } from "@/types/dashboard";
 
 export const useBranchStreaks = (
   selectedBranch: string,
