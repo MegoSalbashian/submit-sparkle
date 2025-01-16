@@ -1,48 +1,26 @@
-import React, { useState } from "react";
-import { getBranches } from "@/services/branchService";
+import React, { useEffect } from "react";
 import { PerformanceCard } from "./dashboard/PerformanceCard";
 import { SuccessRateChart } from "./dashboard/SuccessRateChart";
 import { BranchOverviewTable } from "./dashboard/BranchOverviewTable";
 import { DashboardFilters } from "./dashboard/DashboardFilters";
-import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import { useManagerDashboard } from "@/hooks/useManagerDashboard";
 
 export const ManagerDashboard = () => {
-  const [selectedBranch, setSelectedBranch] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<string>("7d");
-  const { toast } = useToast();
-  
-  const { data: branches = [], isError } = useQuery({
-    queryKey: ['branches'],
-    queryFn: getBranches,
-  });
-
-  const { 
+  const {
+    selectedBranch,
+    dateRange,
+    branches,
     submissionHistory,
     performanceMetrics,
-    branchStreaks
-  } = useDashboardData(selectedBranch, dateRange, branches);
+    branchStreaks,
+    handleBranchChange,
+    handleDateRangeChange,
+    handleError
+  } = useManagerDashboard();
 
-  React.useEffect(() => {
-    if (isError) {
-      toast({
-        title: "Error",
-        description: "Failed to load branches. Please try again later.",
-        variant: "destructive",
-      });
-    }
-  }, [isError, toast]);
-
-  const handleBranchChange = (value: string) => {
-    setSelectedBranch(value);
-    console.log("Selected branch:", value);
-  };
-
-  const handleDateRangeChange = (value: string) => {
-    setDateRange(value);
-    console.log("Selected date range:", value);
-  };
+  useEffect(() => {
+    handleError();
+  }, [handleError]);
 
   return (
     <div className="container mx-auto p-6">
