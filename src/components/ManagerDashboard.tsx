@@ -23,11 +23,14 @@ export const ManagerDashboard = () => {
     console.log("Selected date range:", value);
   };
 
-  const branchStreaks = branches.map(branch => ({
-    ...branch,
-    streaks: generateMockData(branch.id, dateRange).streaks,
-    successRate: generateMockData(branch.id, dateRange).submissionHistory[0].successRate
-  }));
+  const branchStreaks = branches.map(branch => {
+    const branchData = generateMockData(branch.id, dateRange);
+    return {
+      ...branch,
+      streaks: branchData.streaks,
+      successRate: branchData.submissionHistory[0]?.successRate || 0
+    };
+  });
 
   return (
     <div className="container mx-auto p-6">

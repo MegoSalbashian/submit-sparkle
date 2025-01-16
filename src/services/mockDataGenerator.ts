@@ -3,11 +3,16 @@ const getProcessedRecords = () => {
   return storedRecords ? JSON.parse(storedRecords) : [];
 };
 
-const calculateStreakFromStatus = (records: any[], statusKey: string) => {
+const calculateStreakFromStatus = (records: any[], statusKey: string, branchId: string) => {
   if (!records.length) return { currentStreak: 0, longestStreak: 0 };
 
+  // Filter records by branch if a specific branch is selected
+  const filteredRecords = branchId === 'all' 
+    ? records 
+    : records.filter(record => record.branchId === branchId);
+
   // Sort records by date in ascending order (oldest first)
-  const sortedRecords = [...records].sort((a, b) => 
+  const sortedRecords = [...filteredRecords].sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
@@ -48,13 +53,9 @@ const calculateStreakFromStatus = (records: any[], statusKey: string) => {
 };
 
 const calculateStreaks = (records: any[], branchId: string) => {
-  const filteredRecords = branchId === 'all' 
-    ? records 
-    : records.filter(record => record.branchName === branchId);
-
-  const handoverResult = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
-  const depositResult = calculateStreakFromStatus(filteredRecords, 'depositStatus');
-  const invoiceResult = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
+  const handoverResult = calculateStreakFromStatus(records, 'handoverStatus', branchId);
+  const depositResult = calculateStreakFromStatus(records, 'depositStatus', branchId);
+  const invoiceResult = calculateStreakFromStatus(records, 'invoiceStatus', branchId);
 
   return {
     handover: handoverResult.currentStreak,
@@ -64,13 +65,9 @@ const calculateStreaks = (records: any[], branchId: string) => {
 };
 
 const calculateLongestStreaks = (records: any[], branchId: string) => {
-  const filteredRecords = branchId === 'all' 
-    ? records 
-    : records.filter(record => record.branchName === branchId);
-
-  const handoverResult = calculateStreakFromStatus(filteredRecords, 'handoverStatus');
-  const depositResult = calculateStreakFromStatus(filteredRecords, 'depositStatus');
-  const invoiceResult = calculateStreakFromStatus(filteredRecords, 'invoiceStatus');
+  const handoverResult = calculateStreakFromStatus(records, 'handoverStatus', branchId);
+  const depositResult = calculateStreakFromStatus(records, 'depositStatus', branchId);
+  const invoiceResult = calculateStreakFromStatus(records, 'invoiceStatus', branchId);
 
   return {
     handover: handoverResult.longestStreak,
@@ -82,7 +79,7 @@ const calculateLongestStreaks = (records: any[], branchId: string) => {
 const calculateSubmissions = (records: any[], branchId: string) => {
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchName === branchId);
+    : records.filter(record => record.branchId === branchId);
 
   return {
     handover: filteredRecords.length,
@@ -94,7 +91,7 @@ const calculateSubmissions = (records: any[], branchId: string) => {
 const calculateApprovedSubmissions = (records: any[], branchId: string) => {
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchName === branchId);
+    : records.filter(record => record.branchId === branchId);
 
   return {
     handover: filteredRecords.filter(r => r.handoverStatus === 'Approved').length,
@@ -106,7 +103,7 @@ const calculateApprovedSubmissions = (records: any[], branchId: string) => {
 const calculateRejectedSubmissions = (records: any[], branchId: string) => {
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchName === branchId);
+    : records.filter(record => record.branchId === branchId);
 
   return {
     handover: filteredRecords.filter(r => r.handoverStatus === 'Rejected').length,
@@ -122,7 +119,7 @@ const generateSubmissionHistory = (records: any[], branchId: string, dateRange: 
   
   const filteredRecords = branchId === 'all' 
     ? records 
-    : records.filter(record => record.branchName === branchId);
+    : records.filter(record => record.branchId === branchId);
   
   const data = [];
   
