@@ -16,15 +16,28 @@ export const isSuccessfulStatus = (type: string, status: string | null) => {
 };
 
 export const isRejectedStatus = (type: string, status: string | null) => {
+  console.log(`Checking rejected status for ${type}:`, { status });
   if (!status) return false;
   
   const normalizedStatus = status.toLowerCase();
   // For invoices, "missing invoices" counts as rejected
   if (type === 'invoices') {
-    return normalizedStatus === 'missing invoices';
+    const isMissingInvoices = normalizedStatus === 'missing invoices';
+    console.log(`Invoice status check:`, { 
+      status, 
+      normalizedStatus,
+      isMissingInvoices 
+    });
+    return isMissingInvoices;
   }
   // For other types, check for "rejected"
-  return normalizedStatus === 'rejected';
+  const isRejected = normalizedStatus === 'rejected';
+  console.log(`Regular rejected status check:`, { 
+    status, 
+    normalizedStatus,
+    isRejected 
+  });
+  return isRejected;
 };
 
 export const calculateStreak = (records: any[], type: string): { currentStreak: number; longestStreak: number } => {
