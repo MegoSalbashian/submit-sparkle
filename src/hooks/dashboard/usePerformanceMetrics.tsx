@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { calculateMetrics } from "@/utils/statusUtils";
-import { DashboardMetrics, PerformanceMetrics } from "@/types/dashboard";
+import { calculateMetrics } from "@/utils/status/metricsCalculators";
+import { DashboardMetrics } from "@/types/dashboard";
 
 export const usePerformanceMetrics = (selectedBranch: string, dateRange: string) => {
   const [performanceMetrics, setPerformanceMetrics] = useState<DashboardMetrics>({

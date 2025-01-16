@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { isSuccessfulStatus } from "@/utils/statusUtils";
+import { isSuccessfulStatus } from "@/utils/status/statusCheckers";
 import { SubmissionHistoryItem } from "@/types/dashboard";
 
 export const useSubmissionHistory = (selectedBranch: string, dateRange: string) => {

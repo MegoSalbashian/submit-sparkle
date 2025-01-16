@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Branch } from "@/services/branchService";
-import { calculateBranchStreak } from "@/utils/statusUtils";
-import { isSuccessfulStatus } from "@/utils/statusUtils";
+import { calculateBranchStreak } from "@/utils/status/streakCalculators";
+import { isSuccessfulStatus } from "@/utils/status/statusCheckers";
 import { BranchStreak } from "@/types/dashboard";
 
 export const useBranchStreaks = (
