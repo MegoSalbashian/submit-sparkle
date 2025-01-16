@@ -92,6 +92,8 @@ export const useDashboardData = (
         return;
       }
 
+      console.log('Fetched records:', records); // Debug log
+
       // Calculate performance metrics
       const metrics: DashboardMetrics = {
         handover: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
@@ -101,10 +103,13 @@ export const useDashboardData = (
 
       ['handover', 'deposits', 'invoices'].forEach(type => {
         const statusKey = `${type}_status`;
-        metrics[type as keyof DashboardMetrics].total = records?.length || 0;
-        metrics[type as keyof DashboardMetrics].approved = records?.filter(r => r[statusKey] === 'approved').length || 0;
-        metrics[type as keyof DashboardMetrics].rejected = records?.filter(r => r[statusKey] === 'rejected').length || 0;
-        const { currentStreak, longestStreak } = calculateStreak(records || [], type);
+        const safeRecords = records || [];
+        
+        metrics[type as keyof DashboardMetrics].total = safeRecords.length;
+        metrics[type as keyof DashboardMetrics].approved = safeRecords.filter(r => r[statusKey] === 'approved').length;
+        metrics[type as keyof DashboardMetrics].rejected = safeRecords.filter(r => r[statusKey] === 'rejected').length;
+        
+        const { currentStreak, longestStreak } = calculateStreak(safeRecords, type);
         metrics[type as keyof DashboardMetrics].streak = currentStreak;
         metrics[type as keyof DashboardMetrics].longestStreak = longestStreak;
       });
@@ -156,7 +161,8 @@ export const useDashboardData = (
           : 0;
 
         return {
-          ...branch,
+          id: branch.id,
+          name: branch.name,
           streaks,
           successRate
         };
