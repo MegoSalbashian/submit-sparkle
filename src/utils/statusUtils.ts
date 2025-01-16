@@ -19,17 +19,20 @@ export const isRejectedStatus = (type: string, status: string | null) => {
   console.log(`Checking rejected status for ${type}:`, { status });
   if (!status) return false;
   
-  const normalizedStatus = status.toLowerCase();
-  // For invoices, "missing invoices" counts as rejected
+  const normalizedStatus = status.toLowerCase().trim();
+  
+  // For invoices, any status containing "missing" counts as rejected
   if (type === 'invoices') {
-    const isMissingInvoices = normalizedStatus === 'missing invoices';
+    const isMissingInvoices = normalizedStatus.includes('missing');
     console.log(`Invoice status check:`, { 
       status, 
       normalizedStatus,
-      isMissingInvoices 
+      isMissingInvoices,
+      type
     });
     return isMissingInvoices;
   }
+  
   // For other types, check for "rejected"
   const isRejected = normalizedStatus === 'rejected';
   console.log(`Regular rejected status check:`, { 
