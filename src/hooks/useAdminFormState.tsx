@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { branches } from "@/data/mockData";
+import type { Branch } from "@/services/branchService";
 
 export const useAdminFormState = () => {
   const [selectedBranch, setSelectedBranch] = useState<string>("");
@@ -38,20 +38,13 @@ export const useAdminFormState = () => {
   const populateForm = (record: any) => {
     setIsEditing(true);
     setEditingId(record.id);
-    
-    const branch = branches.find(b => b.name === record.branchName);
-    if (branch) {
-      setSelectedBranch(branch.id);
-    }
-    
+    setSelectedBranch(record.branch_id);
     setDepositDate(record.date);
     setDepositOdooSession(record.depositOdooSession);
     setDepositStatus(record.depositStatus.toLowerCase());
-    
     setHandoverDate(record.date);
     setHandoverOdooSession(record.handoverOdooSession);
     setHandoverStatus(record.handoverStatus.toLowerCase());
-    
     setInvoiceDate(record.date);
     setInvoiceStatus(record.invoiceStatus.toLowerCase());
   };
