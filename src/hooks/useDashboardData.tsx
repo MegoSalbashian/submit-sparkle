@@ -76,26 +76,27 @@ export const useDashboardData = (
 
         const safeRecords = records || [];
 
-        // Calculate metrics for each type
-        const metrics: DashboardMetrics = {
-          handover: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
-          deposits: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
-          invoices: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 }
-        };
-
         const isSuccessfulStatus = (type: string, status: string | null) => {
           if (!status) return false;
           status = status.toLowerCase();
           
           switch(type) {
             case 'handover':
+              return status === 'approved';
             case 'deposits':
               return status === 'approved';
             case 'invoices':
-              return status !== 'missing';
+              return status !== 'missing' && status !== 'rejected';
             default:
               return false;
           }
+        };
+
+        // Calculate metrics for each type
+        const metrics: DashboardMetrics = {
+          handover: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
+          deposits: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
+          invoices: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 }
         };
 
         ['handover', 'deposits', 'invoices'].forEach(type => {
@@ -143,7 +144,6 @@ export const useDashboardData = (
           
           acc[date].total++;
           
-          // A record is successful if all three types are successful
           const isSuccessful = 
             isSuccessfulStatus('handover', record.handover_status) &&
             isSuccessfulStatus('deposits', record.deposit_status) &&
@@ -183,9 +183,7 @@ export const useDashboardData = (
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
             for (const record of sortedBranchRecords) {
-              const isSuccess = isSuccessfulStatus(type, record[`${type}_status`]);
-              
-              if (isSuccess) {
+              if (isSuccessfulStatus(type, record[`${type}_status`])) {
                 currentStreak++;
               } else {
                 break;
@@ -195,7 +193,6 @@ export const useDashboardData = (
             streaks[type as keyof typeof streaks] = currentStreak;
           });
 
-          // Calculate success rate based on all three types being successful
           const successfulRecords = branchRecords.filter(record => 
             isSuccessfulStatus('handover', record.handover_status) &&
             isSuccessfulStatus('deposits', record.deposit_status) &&
