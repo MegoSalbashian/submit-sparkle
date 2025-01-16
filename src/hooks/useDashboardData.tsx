@@ -51,12 +51,14 @@ export const useDashboardData = (
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
-    sortedRecords.forEach((record) => {
+    for (const record of sortedRecords) {
       const statusKey = `${type}_status`;
-      const status = record[statusKey]?.toLowerCase();
+      if (!record[statusKey]) continue;
+      
+      const status = record[statusKey].toLowerCase();
       const isSuccess = status === 'approved';
       
-      if (isSuccess && lastSuccess) {
+      if (isSuccess && (currentStreak === 0 || lastSuccess)) {
         currentStreak++;
         longestStreak = Math.max(longestStreak, currentStreak);
       } else if (!isSuccess) {
@@ -64,13 +66,15 @@ export const useDashboardData = (
       }
       
       lastSuccess = isSuccess;
-    });
+    }
 
     return { currentStreak, longestStreak };
   };
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log('Fetching data with params:', { selectedBranch, dateRange });
+      
       let query = supabase
         .from('records')
         .select('*, branches(name)');
@@ -79,7 +83,6 @@ export const useDashboardData = (
         query = query.eq('branch_id', selectedBranch);
       }
 
-      // Only filter by date if not "all time"
       if (dateRange !== 'all') {
         const daysToSubtract = {
           '7d': 7,
@@ -102,7 +105,7 @@ export const useDashboardData = (
       const safeRecords = records || [];
       console.log('Raw fetched records:', safeRecords);
 
-      // Calculate performance metrics
+      // Calculate metrics for each type
       const metrics: DashboardMetrics = {
         handover: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
         deposits: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
@@ -110,23 +113,23 @@ export const useDashboardData = (
       };
 
       ['handover', 'deposits', 'invoices'].forEach(type => {
-        const statusKey = `${type}_status`;
-        metrics[type as keyof DashboardMetrics].total = safeRecords.length;
-        metrics[type as keyof DashboardMetrics].approved = safeRecords.filter(
-          r => r[statusKey]?.toLowerCase() === 'approved'
-        ).length;
-        metrics[type as keyof DashboardMetrics].rejected = safeRecords.filter(
-          r => r[statusKey]?.toLowerCase() === 'rejected'
-        ).length;
-
         const { currentStreak, longestStreak } = calculateStreak(safeRecords, type);
-        metrics[type as keyof DashboardMetrics].streak = currentStreak;
-        metrics[type as keyof DashboardMetrics].longestStreak = longestStreak;
+        const typeMetrics = metrics[type as keyof DashboardMetrics];
+        
+        typeMetrics.total = safeRecords.length;
+        typeMetrics.approved = safeRecords.filter(
+          r => r[`${type}_status`]?.toLowerCase() === 'approved'
+        ).length;
+        typeMetrics.rejected = safeRecords.filter(
+          r => r[`${type}_status`]?.toLowerCase() === 'rejected'
+        ).length;
+        typeMetrics.streak = currentStreak;
+        typeMetrics.longestStreak = longestStreak;
       });
 
       setPerformanceMetrics(metrics);
 
-      // Calculate success rates for chart
+      // Calculate success rates by date
       const recordsByDate = safeRecords.reduce((acc: { [key: string]: { total: number, successful: number } }, record: any) => {
         const date = record.date;
         if (!acc[date]) {
@@ -144,10 +147,12 @@ export const useDashboardData = (
         return acc;
       }, {});
 
-      const historyData = Object.entries(recordsByDate).map(([date, stats]) => ({
-        date,
-        successRate: (stats.successful / stats.total) * 100
-      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const historyData = Object.entries(recordsByDate)
+        .map(([date, stats]) => ({
+          date,
+          successRate: (stats.successful / stats.total) * 100
+        }))
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
       console.log('Processed history data:', historyData);
       setSubmissionHistory(historyData);
