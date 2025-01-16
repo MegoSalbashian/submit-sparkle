@@ -83,7 +83,7 @@ export const useDashboardData = (
           invoices: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 }
         };
 
-        const isSuccessfulStatus = (type: string, status: string) => {
+        const isSuccessfulStatus = (type: string, status: string | null) => {
           if (!status) return false;
           status = status.toLowerCase();
           
@@ -102,32 +102,35 @@ export const useDashboardData = (
           const statusKey = `${type}_status`;
           const typeMetrics = metrics[type as keyof DashboardMetrics];
           
-          typeMetrics.total = safeRecords.filter(r => r[statusKey]).length;
+          // Count total records that have a status
+          typeMetrics.total = safeRecords.length;
+          
+          // Count approved records
           typeMetrics.approved = safeRecords.filter(
             r => isSuccessfulStatus(type, r[statusKey])
           ).length;
-          typeMetrics.rejected = safeRecords.filter(
-            r => !isSuccessfulStatus(type, r[statusKey])
-          ).length;
+          
+          // Count rejected records
+          typeMetrics.rejected = typeMetrics.total - typeMetrics.approved;
 
           // Calculate streak
           let currentStreak = 0;
           let longestStreak = 0;
           let lastSuccess = true;
 
+          // Sort records by date in descending order (newest first)
           const sortedRecords = [...safeRecords]
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+          // Calculate current streak (consecutive successful submissions)
           for (const record of sortedRecords) {
-            if (!record[statusKey]) continue;
-            
             const isSuccess = isSuccessfulStatus(type, record[statusKey]);
             
             if (isSuccess && (currentStreak === 0 || lastSuccess)) {
               currentStreak++;
               longestStreak = Math.max(longestStreak, currentStreak);
             } else if (!isSuccess) {
-              currentStreak = 0;
+              break; // Break on first failure for current streak
             }
             
             lastSuccess = isSuccess;
@@ -140,20 +143,18 @@ export const useDashboardData = (
         setPerformanceMetrics(metrics);
 
         // Calculate success rates by date
-        const recordsByDate = safeRecords.reduce((acc: { [key: string]: { total: number, successful: number } }, record: any) => {
+        const recordsByDate = safeRecords.reduce((acc: { [key: string]: { total: number, successful: number } }, record) => {
           const date = record.date;
           if (!acc[date]) {
             acc[date] = { total: 0, successful: 0 };
           }
           
-          const isSuccessful = ['handover_status', 'deposit_status', 'invoice_status'].every(
-            status => isSuccessfulStatus(
-              status.split('_')[0], 
-              record[status]
-            )
+          acc[date].total++;
+          
+          const isSuccessful = ['handover', 'deposits', 'invoices'].every(type => 
+            isSuccessfulStatus(type, record[`${type}_status`])
           );
           
-          acc[date].total++;
           if (isSuccessful) {
             acc[date].successful++;
           }
@@ -183,24 +184,18 @@ export const useDashboardData = (
 
           ['handover', 'deposits', 'invoices'].forEach(type => {
             let currentStreak = 0;
-            let lastSuccess = true;
-
+            
             const sortedBranchRecords = [...branchRecords]
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
             for (const record of sortedBranchRecords) {
-              const statusKey = `${type}_status`;
-              if (!record[statusKey]) continue;
+              const isSuccess = isSuccessfulStatus(type, record[`${type}_status`]);
               
-              const isSuccess = isSuccessfulStatus(type, record[statusKey]);
-              
-              if (isSuccess && (currentStreak === 0 || lastSuccess)) {
+              if (isSuccess) {
                 currentStreak++;
-              } else if (!isSuccess) {
+              } else {
                 break;
               }
-              
-              lastSuccess = isSuccess;
             }
 
             streaks[type as keyof typeof streaks] = currentStreak;
@@ -208,11 +203,8 @@ export const useDashboardData = (
 
           const successRate = branchRecords.length > 0
             ? (branchRecords.filter(r => 
-                ['handover_status', 'deposit_status', 'invoice_status'].every(
-                  status => isSuccessfulStatus(
-                    status.split('_')[0],
-                    r[status]
-                  )
+                ['handover', 'deposits', 'invoices'].every(type =>
+                  isSuccessfulStatus(type, r[`${type}_status`])
                 )
               ).length / branchRecords.length) * 100
             : 0;
