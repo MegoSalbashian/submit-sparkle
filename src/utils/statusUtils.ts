@@ -32,14 +32,27 @@ export const calculateStreak = (records: any[], type: string): { currentStreak: 
 };
 
 export const calculateMetrics = (records: any[], type: string) => {
+  const statusKey = `${type}_status`;
   const total = records.length;
-  const approved = records.filter(r => isSuccessfulStatus(type, r[`${type}_status`])).length;
+  
+  // Explicitly count approved records
+  const approved = records.filter(record => {
+    const status = record[statusKey]?.toLowerCase();
+    return status === 'approved';
+  }).length;
+
+  // Calculate rejected as those that are not approved
+  const rejected = records.filter(record => {
+    const status = record[statusKey]?.toLowerCase();
+    return status !== 'approved' && status !== null;
+  }).length;
+
   const { currentStreak, longestStreak } = calculateStreak(records, type);
 
   return {
     total,
     approved,
-    rejected: total - approved,
+    rejected,
     streak: currentStreak,
     longestStreak
   };
@@ -47,8 +60,11 @@ export const calculateMetrics = (records: any[], type: string) => {
 
 export const calculateBranchStreak = (records: any[], type: string): number => {
   let streak = 0;
+  const statusKey = `${type}_status`;
+  
   for (const record of records) {
-    if (isSuccessfulStatus(type, record[`${type}_status`])) {
+    const status = record[statusKey]?.toLowerCase();
+    if (status === 'approved') {
       streak++;
     } else {
       break;
