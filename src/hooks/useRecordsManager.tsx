@@ -143,7 +143,6 @@ export const useRecordsManager = () => {
     }
   };
 
-  // Fetch records when the hook is initialized
   useEffect(() => {
     fetchRecords();
   }, []);

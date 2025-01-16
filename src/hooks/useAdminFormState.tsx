@@ -6,32 +6,32 @@ export const useAdminFormState = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
-  const [depositStatus, setDepositStatus] = useState<string>("");
+  const [depositStatus, setDepositStatus] = useState<string>("pending");
   const [depositDate, setDepositDate] = useState<string>("");
   const [depositOdooSession, setDepositOdooSession] = useState<string>("");
   const [depositNotes, setDepositNotes] = useState<string>("");
   
-  const [handoverStatus, setHandoverStatus] = useState<string>("");
+  const [handoverStatus, setHandoverStatus] = useState<string>("pending");
   const [handoverDate, setHandoverDate] = useState<string>("");
   const [handoverOdooSession, setHandoverOdooSession] = useState<string>("");
   const [handoverNotes, setHandoverNotes] = useState<string>("");
   
-  const [invoiceStatus, setInvoiceStatus] = useState<string>("");
+  const [invoiceStatus, setInvoiceStatus] = useState<string>("approved");
   const [invoiceDate, setInvoiceDate] = useState<string>("");
 
   const resetForm = () => {
     setIsEditing(false);
     setEditingId(null);
     setSelectedBranch("");
-    setDepositStatus("");
+    setDepositStatus("pending");
     setDepositDate("");
     setDepositOdooSession("");
     setDepositNotes("");
-    setHandoverStatus("");
+    setHandoverStatus("pending");
     setHandoverDate("");
     setHandoverOdooSession("");
     setHandoverNotes("");
-    setInvoiceStatus("");
+    setInvoiceStatus("approved");
     setInvoiceDate("");
   };
 
@@ -42,9 +42,11 @@ export const useAdminFormState = () => {
     setDepositDate(record.date);
     setDepositOdooSession(record.depositOdooSession);
     setDepositStatus(record.depositStatus.toLowerCase());
+    setDepositNotes(record.depositNotes || "");
     setHandoverDate(record.date);
     setHandoverOdooSession(record.handoverOdooSession);
     setHandoverStatus(record.handoverStatus.toLowerCase());
+    setHandoverNotes(record.handoverNotes || "");
     setInvoiceDate(record.date);
     setInvoiceStatus(record.invoiceStatus.toLowerCase());
   };
