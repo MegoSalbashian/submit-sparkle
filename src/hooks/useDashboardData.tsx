@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Branch } from "@/services/branchService";
+import { isSuccessfulStatus, calculateMetrics, calculateBranchStreak } from "@/utils/statusUtils";
 
 interface PerformanceMetrics {
   total: number;
@@ -72,66 +73,19 @@ export const useDashboardData = (
           return;
         }
 
-        console.log('Raw fetched records:', records);
-
         const safeRecords = records || [];
-
-        const isSuccessfulStatus = (type: string, status: string | null) => {
-          if (!status) return false;
-          status = status.toLowerCase();
-          
-          switch(type) {
-            case 'handover':
-              return status === 'approved';
-            case 'deposits':
-              return status === 'approved';
-            case 'invoices':
-              return status !== 'missing' && status !== 'rejected';
-            default:
-              return false;
-          }
-        };
-
-        // Calculate metrics for each type
-        const metrics: DashboardMetrics = {
-          handover: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
-          deposits: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
-          invoices: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 }
-        };
-
+        
         // Sort records by date in descending order (newest first)
         const sortedRecords = [...safeRecords].sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
-        // Calculate metrics and streaks for each type
-        ['handover', 'deposits', 'invoices'].forEach(type => {
-          const statusKey = `${type}_status`;
-          const typeMetrics = metrics[type as keyof DashboardMetrics];
-          
-          typeMetrics.total = sortedRecords.length;
-          typeMetrics.approved = sortedRecords.filter(
-            r => isSuccessfulStatus(type, r[statusKey])
-          ).length;
-          typeMetrics.rejected = typeMetrics.total - typeMetrics.approved;
-
-          // Calculate current streak
-          let currentStreak = 0;
-          let longestStreak = 0;
-
-          // Calculate streaks by checking consecutive successful submissions
-          for (const record of sortedRecords) {
-            if (isSuccessfulStatus(type, record[statusKey])) {
-              currentStreak++;
-              longestStreak = Math.max(longestStreak, currentStreak);
-            } else {
-              break;
-            }
-          }
-
-          typeMetrics.streak = currentStreak;
-          typeMetrics.longestStreak = longestStreak;
-        });
+        // Calculate metrics for each type
+        const metrics: DashboardMetrics = {
+          handover: calculateMetrics(sortedRecords, 'handover'),
+          deposits: calculateMetrics(sortedRecords, 'deposits'),
+          invoices: calculateMetrics(sortedRecords, 'invoices')
+        };
 
         setPerformanceMetrics(metrics);
 
@@ -170,24 +124,10 @@ export const useDashboardData = (
           const branchRecords = sortedRecords.filter(r => r.branch_id === branch.id);
           
           const streaks = {
-            handover: 0,
-            deposits: 0,
-            invoices: 0
+            handover: calculateBranchStreak(branchRecords, 'handover'),
+            deposits: calculateBranchStreak(branchRecords, 'deposits'),
+            invoices: calculateBranchStreak(branchRecords, 'invoices')
           };
-
-          ['handover', 'deposits', 'invoices'].forEach(type => {
-            let currentStreak = 0;
-            
-            for (const record of branchRecords) {
-              if (isSuccessfulStatus(type, record[`${type}_status`])) {
-                currentStreak++;
-              } else {
-                break;
-              }
-            }
-
-            streaks[type as keyof typeof streaks] = currentStreak;
-          });
 
           const successfulRecords = branchRecords.filter(record => 
             isSuccessfulStatus('handover', record.handover_status) &&
@@ -207,7 +147,6 @@ export const useDashboardData = (
           };
         });
 
-        console.log('Branch metrics:', branchMetrics);
         setBranchStreaks(branchMetrics);
 
       } catch (error) {
