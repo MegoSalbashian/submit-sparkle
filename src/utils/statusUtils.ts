@@ -69,3 +69,18 @@ export const calculateMetrics = (records: any[], type: string) => {
     longestStreak
   };
 };
+
+export const calculateBranchStreak = (records: any[], type: string): number => {
+  let streak = 0;
+  const statusKey = `${type}_status`;
+  
+  for (const record of records) {
+    const status = record[statusKey]?.toLowerCase();
+    if (status === 'approved') {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+};
