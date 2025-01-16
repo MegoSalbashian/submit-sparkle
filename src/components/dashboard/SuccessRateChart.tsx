@@ -24,8 +24,6 @@ export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
     );
   }
 
-  console.log('Chart data:', data);
-
   return (
     <Card className="dashboard-card mb-8">
       <h3 className="text-lg font-medium mb-4">Success Rate History</h3>
