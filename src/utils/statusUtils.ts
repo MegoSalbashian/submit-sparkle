@@ -1,7 +1,7 @@
 export const isSuccessfulStatus = (type: string, status: string | null) => {
   console.log(`Checking status for ${type}:`, { status });
   if (!status) return false;
-  const isApproved = status === 'approved';
+  const isApproved = status.toLowerCase() === 'approved';
   console.log(`Status check result for ${type}:`, { status, isApproved });
   return isApproved;
 };
@@ -38,14 +38,14 @@ export const calculateMetrics = (records: any[], type: string) => {
       id: record.id,
       status: status,
       statusKey: statusKey,
-      fullRecord: JSON.stringify(record)
+      record: record
     });
-    return status === 'approved';
+    return isSuccessfulStatus(type, status);
   }).length;
 
   // Count rejected records
   const rejected = records.filter(record => 
-    record[statusKey] === 'rejected'
+    record[statusKey]?.toLowerCase() === 'rejected'
   ).length;
 
   const { currentStreak, longestStreak } = calculateStreak(records, type);
@@ -88,7 +88,7 @@ export const calculateBranchStreak = (records: any[], type: string): number => {
   
   for (const record of records) {
     const status = record[statusKey];
-    if (status === 'approved') {
+    if (isSuccessfulStatus(type, status)) {
       streak++;
     } else {
       break;
