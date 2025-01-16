@@ -1,7 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { ChartContainer } from "@/components/ui/chart";
 
 interface SubmissionHistoryItem {
   date: string;
@@ -13,6 +12,18 @@ interface SuccessRateChartProps {
 }
 
 export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
+  // If no data, show a message
+  if (!data || data.length === 0) {
+    return (
+      <Card className="dashboard-card mb-8">
+        <h3 className="text-lg font-medium mb-4">Success Rate History</h3>
+        <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+          No data available for the selected period
+        </div>
+      </Card>
+    );
+  }
+
   const successRates = data.map(item => item.successRate);
   const minRate = Math.floor(Math.min(...successRates));
   const maxRate = Math.ceil(Math.max(...successRates));
@@ -21,9 +32,9 @@ export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
   return (
     <Card className="dashboard-card mb-8">
       <h3 className="text-lg font-medium mb-4">Success Rate History</h3>
-      <div className="chart-container" style={{ height: "400px" }}>
+      <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="date" 

@@ -48,7 +48,7 @@ export const useDashboardData = (
     records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     records.forEach((record) => {
-      const isSuccess = record[`${type}_status`] === 'approved';
+      const isSuccess = record[`${type}_status`].toLowerCase() === 'approved';
       
       if (isSuccess && lastSuccess) {
         currentStreak++;
@@ -92,7 +92,7 @@ export const useDashboardData = (
         return;
       }
 
-      console.log('Fetched records:', records); // Debug log
+      console.log('Fetched records:', records);
 
       // Calculate performance metrics
       const metrics: DashboardMetrics = {
@@ -101,13 +101,14 @@ export const useDashboardData = (
         invoices: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 }
       };
 
+      const safeRecords = records || [];
+
       ['handover', 'deposits', 'invoices'].forEach(type => {
         const statusKey = `${type}_status`;
-        const safeRecords = records || [];
         
         metrics[type as keyof DashboardMetrics].total = safeRecords.length;
-        metrics[type as keyof DashboardMetrics].approved = safeRecords.filter(r => r[statusKey] === 'approved').length;
-        metrics[type as keyof DashboardMetrics].rejected = safeRecords.filter(r => r[statusKey] === 'rejected').length;
+        metrics[type as keyof DashboardMetrics].approved = safeRecords.filter(r => r[statusKey]?.toLowerCase() === 'approved').length;
+        metrics[type as keyof DashboardMetrics].rejected = safeRecords.filter(r => r[statusKey]?.toLowerCase() === 'rejected').length;
         
         const { currentStreak, longestStreak } = calculateStreak(safeRecords, type);
         metrics[type as keyof DashboardMetrics].streak = currentStreak;
@@ -117,7 +118,7 @@ export const useDashboardData = (
       setPerformanceMetrics(metrics);
 
       // Calculate success rates for chart
-      const groupedRecords = (records || []).reduce((acc: any, record: any) => {
+      const groupedRecords = safeRecords.reduce((acc: any, record: any) => {
         const date = record.date;
         if (!acc[date]) {
           acc[date] = {
@@ -127,9 +128,9 @@ export const useDashboardData = (
         }
         acc[date].total++;
         if (
-          record.handover_status === 'approved' &&
-          record.deposit_status === 'approved' &&
-          record.invoice_status === 'approved'
+          record.handover_status?.toLowerCase() === 'approved' &&
+          record.deposit_status?.toLowerCase() === 'approved' &&
+          record.invoice_status?.toLowerCase() === 'approved'
         ) {
           acc[date].successful++;
         }
@@ -145,18 +146,18 @@ export const useDashboardData = (
 
       // Calculate branch streaks
       const branchMetrics = branches.map(branch => {
-        const branchRecords = records?.filter((r: any) => r.branch_id === branch.id) || [];
+        const branchRecords = safeRecords.filter((r: any) => r.branch_id === branch.id) || [];
         const streaks = {
           handover: calculateStreak(branchRecords, 'handover').currentStreak,
           deposits: calculateStreak(branchRecords, 'deposits').currentStreak,
-          invoices: calculateStreak(branchRecords, 'invoice').currentStreak
+          invoices: calculateStreak(branchRecords, 'invoices').currentStreak
         };
         
         const successRate = branchRecords.length > 0
           ? (branchRecords.filter((r: any) => 
-              r.handover_status === 'approved' && 
-              r.deposit_status === 'approved' && 
-              r.invoice_status === 'approved'
+              r.handover_status?.toLowerCase() === 'approved' && 
+              r.deposit_status?.toLowerCase() === 'approved' && 
+              r.invoice_status?.toLowerCase() === 'approved'
             ).length / branchRecords.length) * 100
           : 0;
 
