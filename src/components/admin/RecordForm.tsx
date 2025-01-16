@@ -99,8 +99,8 @@ export const RecordForm = ({
           setDepositDate={setDepositDate}
           depositOdooSession={depositOdooSession}
           setDepositOdooSession={setDepositOdooSession}
-          depositStatus={depositStatus}
-          setDepositStatus={setDepositStatus}
+          depositStatus={depositStatus.toLowerCase()}
+          setDepositStatus={(value) => setDepositStatus(value.toLowerCase())}
           depositNotes={depositNotes}
           setDepositNotes={setDepositNotes}
         />
@@ -110,8 +110,8 @@ export const RecordForm = ({
           setHandoverDate={setHandoverDate}
           handoverOdooSession={handoverOdooSession}
           setHandoverOdooSession={setHandoverOdooSession}
-          handoverStatus={handoverStatus}
-          setHandoverStatus={setHandoverStatus}
+          handoverStatus={handoverStatus.toLowerCase()}
+          setHandoverStatus={(value) => setHandoverStatus(value.toLowerCase())}
           handoverNotes={handoverNotes}
           setHandoverNotes={setHandoverNotes}
         />
@@ -119,8 +119,8 @@ export const RecordForm = ({
         <InvoiceForm
           invoiceDate={invoiceDate}
           setInvoiceDate={setInvoiceDate}
-          invoiceStatus={invoiceStatus}
-          setInvoiceStatus={setInvoiceStatus}
+          invoiceStatus={invoiceStatus.toLowerCase()}
+          setInvoiceStatus={(value) => setInvoiceStatus(value.toLowerCase())}
         />
         
         <Button type="submit" className="w-full md:w-auto">
