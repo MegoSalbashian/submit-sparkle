@@ -2,6 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { SubmissionHistoryItem } from "@/types/dashboard";
+import { getChartConfig } from "@/utils/chart/successRateChartConfig";
 
 interface SuccessRateChartProps {
   data: SubmissionHistoryItem[];
@@ -19,6 +20,8 @@ export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
     );
   }
 
+  const config = getChartConfig(data);
+
   return (
     <Card className="dashboard-card mb-8">
       <h3 className="text-lg font-medium mb-4">Success Rate History</h3>
@@ -26,32 +29,16 @@ export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart 
             data={data} 
-            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            margin={config.margin}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              tickFormatter={(value) => new Date(value).toLocaleDateString()}
-              angle={-45}
-              textAnchor="end"
-              height={60}
-            />
-            <YAxis 
-              domain={[0, 100]}
-              tickFormatter={(value) => `${value.toFixed(1)}%`}
-            />
+            <XAxis {...config.xAxisConfig} />
+            <YAxis {...config.yAxisConfig} />
             <Tooltip 
-              formatter={(value: number) => [`${value.toFixed(1)}%`, 'Success Rate']}
-              labelFormatter={(label) => new Date(label).toLocaleDateString()}
+              formatter={config.tooltipConfig.formatter}
+              labelFormatter={config.tooltipConfig.labelFormatter}
             />
-            <Line
-              type="monotone"
-              dataKey="successRate"
-              stroke="#22c55e"
-              strokeWidth={2}
-              name="Success Rate"
-              dot={false}
-            />
+            <Line {...config.lineConfig} />
           </LineChart>
         </ResponsiveContainer>
       </div>
