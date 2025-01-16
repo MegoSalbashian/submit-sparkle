@@ -83,16 +83,23 @@ export const useDashboardData = (
           invoices: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 }
         };
 
+        const isSuccessfulStatus = (type: string, status: string) => {
+          if (type === 'invoices') {
+            return status === 'approved';
+          }
+          return status === 'approved';
+        };
+
         ['handover', 'deposits', 'invoices'].forEach(type => {
           const statusKey = `${type}_status`;
           const typeMetrics = metrics[type as keyof DashboardMetrics];
           
           typeMetrics.total = safeRecords.filter(r => r[statusKey]).length;
           typeMetrics.approved = safeRecords.filter(
-            r => r[statusKey]?.toLowerCase() === 'approved'
+            r => isSuccessfulStatus(type, r[statusKey]?.toLowerCase())
           ).length;
           typeMetrics.rejected = safeRecords.filter(
-            r => r[statusKey]?.toLowerCase() === 'rejected'
+            r => !isSuccessfulStatus(type, r[statusKey]?.toLowerCase())
           ).length;
 
           // Calculate streak
@@ -107,7 +114,7 @@ export const useDashboardData = (
             if (!record[statusKey]) continue;
             
             const status = record[statusKey].toLowerCase();
-            const isSuccess = status === 'approved';
+            const isSuccess = isSuccessfulStatus(type, status);
             
             if (isSuccess && (currentStreak === 0 || lastSuccess)) {
               currentStreak++;
@@ -133,7 +140,10 @@ export const useDashboardData = (
           }
           
           const isSuccessful = ['handover_status', 'deposit_status', 'invoice_status'].every(
-            status => record[status]?.toLowerCase() === 'approved'
+            status => isSuccessfulStatus(
+              status.split('_')[0], 
+              record[status]?.toLowerCase()
+            )
           );
           
           acc[date].total++;
@@ -176,7 +186,7 @@ export const useDashboardData = (
               if (!record[statusKey]) continue;
               
               const status = record[statusKey].toLowerCase();
-              const isSuccess = status === 'approved';
+              const isSuccess = isSuccessfulStatus(type, status);
               
               if (isSuccess && (currentStreak === 0 || lastSuccess)) {
                 currentStreak++;
@@ -193,7 +203,10 @@ export const useDashboardData = (
           const successRate = branchRecords.length > 0
             ? (branchRecords.filter(r => 
                 ['handover_status', 'deposit_status', 'invoice_status'].every(
-                  status => r[status]?.toLowerCase() === 'approved'
+                  status => isSuccessfulStatus(
+                    status.split('_')[0],
+                    r[status]?.toLowerCase()
+                  )
                 )
               ).length / branchRecords.length) * 100
             : 0;
