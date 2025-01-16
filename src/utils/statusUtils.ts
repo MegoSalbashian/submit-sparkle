@@ -27,19 +27,26 @@ export const calculateMetrics = (records: any[], type: string) => {
   const statusKey = `${type}_status`;
   const total = records.length;
   
-  // Count approved records consistently for all types
+  // Count approved records
   const approved = records.filter(record => {
-    const status = record[statusKey]?.toLowerCase();
-    return status === 'approved';
+    const status = record[statusKey];
+    return status && status.toLowerCase() === 'approved';
   }).length;
 
-  // Count rejected records - only count explicitly rejected status
+  // Count rejected records
   const rejected = records.filter(record => {
-    const status = record[statusKey]?.toLowerCase();
-    return status === 'rejected';
+    const status = record[statusKey];
+    return status && status.toLowerCase() === 'rejected';
   }).length;
 
   const { currentStreak, longestStreak } = calculateStreak(records, type);
+
+  console.log(`Metrics for ${type}:`, {
+    total,
+    approved,
+    rejected,
+    status: records[0]?.[statusKey]
+  });
 
   return {
     total,
