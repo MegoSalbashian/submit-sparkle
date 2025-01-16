@@ -88,9 +88,9 @@ export const useRecordsManager = () => {
         date: formData.depositDate,
         deposit_odoo_session: formData.depositOdooSession,
         handover_odoo_session: formData.handoverOdooSession,
-        deposit_status: formData.depositStatus,
-        handover_status: formData.handoverStatus,
-        invoice_status: formData.invoiceStatus,
+        deposit_status: formData.depositStatus.toLowerCase(),
+        handover_status: formData.handoverStatus.toLowerCase(),
+        invoice_status: formData.invoiceStatus.toLowerCase(),
         deposit_notes: formData.depositNotes,
         handover_notes: formData.handoverNotes,
       };
