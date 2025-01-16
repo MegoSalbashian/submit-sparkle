@@ -28,29 +28,19 @@ export const calculateMetrics = (records: any[], type: string) => {
   const statusKey = `${type}_status`;
   const total = records.length;
   
-  console.log(`Starting metrics calculation for ${type}:`, {
-    totalRecords: total,
-    allRecords: records.map(r => ({
-      id: r.id,
-      status: r[statusKey],
-      date: r.date
-    }))
-  });
+  // Log the raw records first
+  console.log(`Raw records for ${type} metrics:`, JSON.stringify(records, null, 2));
   
-  // Count approved records
+  // Count approved records with detailed logging
   const approved = records.filter(record => {
     const status = record[statusKey];
-    const isApproved = status === 'approved';
-    
-    console.log(`Record ${type} check:`, {
+    console.log(`Checking record for ${type}:`, {
       id: record.id,
-      date: record.date,
       status: status,
-      isApproved: isApproved,
-      rawStatus: record[statusKey]
+      statusKey: statusKey,
+      fullRecord: JSON.stringify(record)
     });
-    
-    return isApproved;
+    return status === 'approved';
   }).length;
 
   // Count rejected records
@@ -60,13 +50,18 @@ export const calculateMetrics = (records: any[], type: string) => {
 
   const { currentStreak, longestStreak } = calculateStreak(records, type);
 
+  // Log final metrics calculation
   console.log(`Final metrics for ${type}:`, {
     total,
     approved,
     rejected,
-    currentStreak,
+    streak: currentStreak,
     longestStreak,
-    recordsWithApprovedStatus: records.filter(r => r[statusKey] === 'approved').length
+    recordsWithStatus: records.map(r => ({
+      id: r.id,
+      status: r[statusKey],
+      date: r.date
+    }))
   });
 
   return {
@@ -84,7 +79,11 @@ export const calculateBranchStreak = (records: any[], type: string): number => {
   
   console.log(`Calculating branch streak for ${type}:`, {
     recordCount: records.length,
-    statuses: records.map(r => ({ id: r.id, status: r[statusKey] }))
+    records: records.map(r => ({
+      id: r.id,
+      status: r[statusKey],
+      date: r.date
+    }))
   });
   
   for (const record of records) {
