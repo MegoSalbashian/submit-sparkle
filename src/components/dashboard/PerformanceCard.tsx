@@ -1,6 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { StreakCounter } from "../StreakCounter";
+import { SubmissionType } from "@/types/dashboard";
 
 interface PerformanceCardProps {
   title: string;
@@ -9,7 +10,7 @@ interface PerformanceCardProps {
   total: number;
   approved: number;
   rejected: number;
-  type: "handover" | "deposits" | "invoices";
+  type: SubmissionType;
 }
 
 export const PerformanceCard = ({
@@ -21,7 +22,7 @@ export const PerformanceCard = ({
   rejected,
   type
 }: PerformanceCardProps) => {
-  const getRejectedLabel = (type: string) => {
+  const getRejectedLabel = (type: SubmissionType) => {
     return type === 'invoices' ? 'Missing invoices' : 'Rejected';
   };
 

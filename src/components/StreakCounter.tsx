@@ -1,11 +1,12 @@
 import { cn } from "@/lib/utils";
 import { Flame } from "lucide-react";
+import { SubmissionType } from "@/types/dashboard";
 
 interface StreakCounterProps {
   value: number;
   longestStreak: number;
   label: string;
-  type: "handover" | "deposits" | "invoices";
+  type: SubmissionType;
 }
 
 export const StreakCounter = ({ value, longestStreak, label, type }: StreakCounterProps) => {

@@ -1,17 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-interface BranchStreak {
-  id: string;
-  name: string;
-  streaks: {
-    handover: number;
-    deposits: number;
-    invoices: number;
-  };
-  successRate: number;
-}
+import { BranchStreak } from "@/types/dashboard";
 
 interface BranchOverviewTableProps {
   branches: BranchStreak[];

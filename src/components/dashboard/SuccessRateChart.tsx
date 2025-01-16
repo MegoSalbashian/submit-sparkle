@@ -1,18 +1,13 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-interface SubmissionHistoryItem {
-  date: string;
-  successRate: number;
-}
+import { SubmissionHistoryItem } from "@/types/dashboard";
 
 interface SuccessRateChartProps {
   data: SubmissionHistoryItem[];
 }
 
 export const SuccessRateChart = ({ data }: SuccessRateChartProps) => {
-  // If no data, show a message
   if (!data || data.length === 0) {
     return (
       <Card className="dashboard-card mb-8">
