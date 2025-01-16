@@ -93,26 +93,26 @@ export const useDashboardData = (
       }
 
       // Calculate performance metrics
-      const metrics = {
+      const metrics: DashboardMetrics = {
         handover: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
         deposits: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 },
         invoices: { total: 0, approved: 0, rejected: 0, streak: 0, longestStreak: 0 }
       };
 
-      ['handover', 'deposits', 'invoice'].forEach(type => {
+      ['handover', 'deposits', 'invoices'].forEach(type => {
         const statusKey = `${type}_status`;
-        metrics[type].total = records.length;
-        metrics[type].approved = records.filter(r => r[statusKey] === 'approved').length;
-        metrics[type].rejected = records.filter(r => r[statusKey] === 'rejected').length;
-        const { currentStreak, longestStreak } = calculateStreak(records, type);
-        metrics[type].streak = currentStreak;
-        metrics[type].longestStreak = longestStreak;
+        metrics[type as keyof DashboardMetrics].total = records?.length || 0;
+        metrics[type as keyof DashboardMetrics].approved = records?.filter(r => r[statusKey] === 'approved').length || 0;
+        metrics[type as keyof DashboardMetrics].rejected = records?.filter(r => r[statusKey] === 'rejected').length || 0;
+        const { currentStreak, longestStreak } = calculateStreak(records || [], type);
+        metrics[type as keyof DashboardMetrics].streak = currentStreak;
+        metrics[type as keyof DashboardMetrics].longestStreak = longestStreak;
       });
 
       setPerformanceMetrics(metrics);
 
       // Calculate success rates for chart
-      const groupedRecords = records.reduce((acc: any, record: any) => {
+      const groupedRecords = (records || []).reduce((acc: any, record: any) => {
         const date = record.date;
         if (!acc[date]) {
           acc[date] = {
@@ -140,7 +140,7 @@ export const useDashboardData = (
 
       // Calculate branch streaks
       const branchMetrics = branches.map(branch => {
-        const branchRecords = records.filter((r: any) => r.branch_id === branch.id);
+        const branchRecords = records?.filter((r: any) => r.branch_id === branch.id) || [];
         const streaks = {
           handover: calculateStreak(branchRecords, 'handover').currentStreak,
           deposits: calculateStreak(branchRecords, 'deposits').currentStreak,
