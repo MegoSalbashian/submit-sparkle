@@ -31,9 +31,15 @@ export const PerformanceCard = ({
         type={type} 
       />
       <div className="space-y-2 mt-4">
-        <p className="text-sm text-muted-foreground">Total: {total}</p>
-        <p className="text-sm text-secondary">Approved: {approved}</p>
-        <p className="text-sm text-destructive">Rejected: {rejected}</p>
+        <p className="text-sm text-muted-foreground">
+          Total: {total}
+        </p>
+        <p className="text-sm text-emerald-600">
+          Approved: {approved}
+        </p>
+        <p className="text-sm text-red-600">
+          Rejected: {rejected}
+        </p>
       </div>
     </Card>
   );
