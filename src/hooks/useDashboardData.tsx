@@ -102,21 +102,15 @@ export const useDashboardData = (
           const statusKey = `${type}_status`;
           const typeMetrics = metrics[type as keyof DashboardMetrics];
           
-          // Count total records that have a status
           typeMetrics.total = safeRecords.length;
-          
-          // Count approved records
           typeMetrics.approved = safeRecords.filter(
             r => isSuccessfulStatus(type, r[statusKey])
           ).length;
-          
-          // Count rejected records
           typeMetrics.rejected = typeMetrics.total - typeMetrics.approved;
 
           // Calculate streak
           let currentStreak = 0;
           let longestStreak = 0;
-          let lastSuccess = true;
 
           // Sort records by date in descending order (newest first)
           const sortedRecords = [...safeRecords]
@@ -126,14 +120,12 @@ export const useDashboardData = (
           for (const record of sortedRecords) {
             const isSuccess = isSuccessfulStatus(type, record[statusKey]);
             
-            if (isSuccess && (currentStreak === 0 || lastSuccess)) {
+            if (isSuccess) {
               currentStreak++;
               longestStreak = Math.max(longestStreak, currentStreak);
-            } else if (!isSuccess) {
-              break; // Break on first failure for current streak
+            } else {
+              break;
             }
-            
-            lastSuccess = isSuccess;
           }
 
           typeMetrics.streak = currentStreak;
@@ -151,9 +143,11 @@ export const useDashboardData = (
           
           acc[date].total++;
           
-          const isSuccessful = ['handover', 'deposits', 'invoices'].every(type => 
-            isSuccessfulStatus(type, record[`${type}_status`])
-          );
+          // A record is successful if all three types are successful
+          const isSuccessful = 
+            isSuccessfulStatus('handover', record.handover_status) &&
+            isSuccessfulStatus('deposits', record.deposit_status) &&
+            isSuccessfulStatus('invoices', record.invoice_status);
           
           if (isSuccessful) {
             acc[date].successful++;
@@ -201,12 +195,15 @@ export const useDashboardData = (
             streaks[type as keyof typeof streaks] = currentStreak;
           });
 
+          // Calculate success rate based on all three types being successful
+          const successfulRecords = branchRecords.filter(record => 
+            isSuccessfulStatus('handover', record.handover_status) &&
+            isSuccessfulStatus('deposits', record.deposit_status) &&
+            isSuccessfulStatus('invoices', record.invoice_status)
+          );
+
           const successRate = branchRecords.length > 0
-            ? (branchRecords.filter(r => 
-                ['handover', 'deposits', 'invoices'].every(type =>
-                  isSuccessfulStatus(type, r[`${type}_status`])
-                )
-              ).length / branchRecords.length) * 100
+            ? (successfulRecords.length / branchRecords.length) * 100
             : 0;
 
           return {
