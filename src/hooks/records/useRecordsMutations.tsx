@@ -19,9 +19,18 @@ export const useRecordsMutations = () => {
 
   const createRecord = async (record: RecordInput) => {
     console.log("Creating record:", record);
+    
+    // Ensure status fields are lowercase before saving
+    const normalizedRecord = {
+      ...record,
+      deposit_status: record.deposit_status.toLowerCase(),
+      handover_status: record.handover_status.toLowerCase(),
+      invoice_status: record.invoice_status.toLowerCase()
+    };
+
     const { data, error } = await supabase
       .from("records")
-      .insert(record)
+      .insert(normalizedRecord)
       .select()
       .single();
 
@@ -35,9 +44,18 @@ export const useRecordsMutations = () => {
 
   const updateRecord = async ({ id, ...record }: RecordInput & { id: string }) => {
     console.log("Updating record:", { id, ...record });
+    
+    // Ensure status fields are lowercase before saving
+    const normalizedRecord = {
+      ...record,
+      deposit_status: record.deposit_status.toLowerCase(),
+      handover_status: record.handover_status.toLowerCase(),
+      invoice_status: record.invoice_status.toLowerCase()
+    };
+
     const { data, error } = await supabase
       .from("records")
-      .update(record)
+      .update(normalizedRecord)
       .eq('id', id)
       .select()
       .single();
