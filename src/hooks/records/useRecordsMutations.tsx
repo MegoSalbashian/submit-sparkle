@@ -3,15 +3,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface RecordInput {
-  branch_id: string;
-  date: string;
-  deposit_odoo_session?: string;
-  handover_odoo_session?: string;
-  deposit_status: string;
-  handover_status: string;
-  invoice_status: string;
-  deposit_notes?: string;
-  handover_notes?: string;
+  selectedBranch?: string;
+  depositStatus?: string;
+  depositDate?: string;
+  depositOdooSession?: string;
+  depositNotes?: string;
+  handoverStatus?: string;
+  handoverDate?: string;
+  handoverOdooSession?: string;
+  handoverNotes?: string;
+  invoiceStatus?: string;
+  invoiceDate?: string;
 }
 
 export const useRecordsMutations = () => {
@@ -20,13 +22,20 @@ export const useRecordsMutations = () => {
   const createRecord = async (record: RecordInput) => {
     console.log("Creating record:", record);
     
-    // Ensure status fields are lowercase before saving
+    // Map the form fields to database fields
     const normalizedRecord = {
-      ...record,
-      deposit_status: record.deposit_status.toLowerCase(),
-      handover_status: record.handover_status.toLowerCase(),
-      invoice_status: record.invoice_status.toLowerCase()
+      branch_id: record.selectedBranch,
+      date: record.depositDate, // Using deposit date as the main date
+      deposit_odoo_session: record.depositOdooSession,
+      handover_odoo_session: record.handoverOdooSession,
+      deposit_status: record.depositStatus?.toLowerCase(),
+      handover_status: record.handoverStatus?.toLowerCase(),
+      invoice_status: record.invoiceStatus?.toLowerCase(),
+      deposit_notes: record.depositNotes,
+      handover_notes: record.handoverNotes,
     };
+
+    console.log("Normalized record for creation:", normalizedRecord);
 
     const { data, error } = await supabase
       .from("records")
@@ -45,13 +54,20 @@ export const useRecordsMutations = () => {
   const updateRecord = async ({ id, ...record }: RecordInput & { id: string }) => {
     console.log("Updating record:", { id, ...record });
     
-    // Ensure status fields are lowercase before saving
+    // Map the form fields to database fields
     const normalizedRecord = {
-      ...record,
-      deposit_status: record.deposit_status.toLowerCase(),
-      handover_status: record.handover_status.toLowerCase(),
-      invoice_status: record.invoice_status.toLowerCase()
+      branch_id: record.selectedBranch,
+      date: record.depositDate,
+      deposit_odoo_session: record.depositOdooSession,
+      handover_odoo_session: record.handoverOdooSession,
+      deposit_status: record.depositStatus?.toLowerCase(),
+      handover_status: record.handoverStatus?.toLowerCase(),
+      invoice_status: record.invoiceStatus?.toLowerCase(),
+      deposit_notes: record.depositNotes,
+      handover_notes: record.handoverNotes,
     };
+
+    console.log("Normalized record for update:", normalizedRecord);
 
     const { data, error } = await supabase
       .from("records")
