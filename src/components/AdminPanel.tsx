@@ -35,7 +35,6 @@ export const AdminPanel = () => {
 
     const depositData = {
       deposit_status: formState.depositStatus.toLowerCase(),
-      deposit_date: formState.depositDate,
       deposit_odoo_session: formState.depositOdooSession,
       deposit_notes: formState.depositNotes,
       deposit_updated_at: new Date().toISOString(),
@@ -61,7 +60,6 @@ export const AdminPanel = () => {
 
     const handoverData = {
       handover_status: formState.handoverStatus.toLowerCase(),
-      handover_date: formState.handoverDate,
       handover_odoo_session: formState.handoverOdooSession,
       handover_notes: formState.handoverNotes,
       handover_updated_at: new Date().toISOString(),
@@ -87,7 +85,6 @@ export const AdminPanel = () => {
 
     const invoiceData = {
       invoice_status: formState.invoiceStatus.toLowerCase(),
-      invoice_date: formState.invoiceDate,
       invoice_updated_at: new Date().toISOString(),
     };
 
