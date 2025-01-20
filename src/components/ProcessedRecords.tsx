@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Trash2 } from "lucide-react";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 
 interface ProcessedRecord {
   id: string;
@@ -32,7 +32,14 @@ interface ProcessedRecordsProps {
 export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecordsProps) => {
   const formatDate = (dateString?: string) => {
     if (!dateString) return "Not submitted";
-    return format(new Date(dateString), "MMM d, yyyy HH:mm");
+    const date = new Date(dateString);
+    if (!isValid(date)) return "Invalid date";
+    try {
+      return format(date, "MMM d, yyyy HH:mm");
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid date";
+    }
   };
 
   return (
