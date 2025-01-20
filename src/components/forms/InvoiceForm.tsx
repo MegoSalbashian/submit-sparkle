@@ -43,7 +43,8 @@ export const InvoiceForm = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="missing">Missing invoices</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="missing">Missing</SelectItem>
             </SelectContent>
           </Select>
         </div>

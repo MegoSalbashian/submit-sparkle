@@ -61,17 +61,17 @@ export const DepositSlipForm = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="missing">Missing</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        {(depositStatus === "pending" || depositStatus === "rejected") && (
+        {(depositStatus === "pending" || depositStatus === "missing") && (
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="depositNotes">Notes</Label>
             <Textarea
               id="depositNotes"
-              placeholder="Enter reason for pending/rejected status"
+              placeholder="Enter reason for pending/missing status"
               value={depositNotes}
               onChange={(e) => setDepositNotes(e.target.value)}
             />

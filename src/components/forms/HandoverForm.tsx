@@ -61,17 +61,17 @@ export const HandoverForm = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="missing">Missing</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        {(handoverStatus === "pending" || handoverStatus === "rejected") && (
+        {(handoverStatus === "pending" || handoverStatus === "missing") && (
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="handoverNotes">Notes</Label>
             <Textarea
               id="handoverNotes"
-              placeholder="Enter reason for pending/rejected status"
+              placeholder="Enter reason for pending/missing status"
               value={handoverNotes}
               onChange={(e) => setHandoverNotes(e.target.value)}
             />
