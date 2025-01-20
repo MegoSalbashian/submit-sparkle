@@ -6,9 +6,9 @@ type ToastFunction = (props: ToastProps) => void;
 export const validateBranchSelection = (selectedBranch: string, toastFn: ToastFunction) => {
   if (!selectedBranch) {
     toastFn({
-      title: "Error",
-      description: "Please select a branch",
       variant: "destructive",
+      title: "Error",
+      children: "Please select a branch"
     });
     return false;
   }
