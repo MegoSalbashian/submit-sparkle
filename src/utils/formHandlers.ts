@@ -1,8 +1,7 @@
-import { FormEvent } from "react";
 import { FormState } from "@/types/admin";
-import { Toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
-export const validateBranchSelection = (selectedBranch: string, toast: Toast) => {
+export const validateBranchSelection = (selectedBranch: string, toast: ReturnType<typeof useToast>) => {
   if (!selectedBranch) {
     toast({
       title: "Error",
