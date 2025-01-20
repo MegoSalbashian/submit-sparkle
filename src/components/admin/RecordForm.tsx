@@ -1,17 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import { getBranches } from "@/services/branchService";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { BranchSelector } from "./forms/BranchSelector";
 import { DepositSlipForm } from "../forms/DepositSlipForm";
 import { HandoverForm } from "../forms/HandoverForm";
 import { InvoiceForm } from "../forms/InvoiceForm";
@@ -48,7 +38,6 @@ interface RecordFormProps {
 export const RecordForm = ({
   selectedBranch,
   setSelectedBranch,
-  isEditing,
   depositDate,
   setDepositDate,
   depositOdooSession,
@@ -73,30 +62,13 @@ export const RecordForm = ({
   onSubmitHandover,
   onSubmitInvoice,
 }: RecordFormProps) => {
-  const { toast } = useToast();
-  const { data: branches = [] } = useQuery({
-    queryKey: ['branches'],
-    queryFn: getBranches,
-  });
-
   return (
     <Card className="p-6">
       <div className="space-y-8">
-        <div className="space-y-2">
-          <Label htmlFor="branch">Branch</Label>
-          <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select branch" />
-            </SelectTrigger>
-            <SelectContent>
-              {branches.map((branch) => (
-                <SelectItem key={branch.id} value={branch.id}>
-                  {branch.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <BranchSelector
+          selectedBranch={selectedBranch}
+          setSelectedBranch={setSelectedBranch}
+        />
 
         <form onSubmit={onSubmitDeposit} className="space-y-6">
           <DepositSlipForm

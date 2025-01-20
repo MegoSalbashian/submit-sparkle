@@ -9,62 +9,37 @@ import {
 import { BranchManagement } from "./BranchManagement";
 import { RecordsTab } from "./admin/RecordsTab";
 import { useAdminFormState } from "@/hooks/useAdminFormState";
-import { useRecordsManager } from "@/hooks/useRecordsManager";
+import { useRecordMutations } from "@/hooks/useRecordMutations";
 import { useToast } from "@/hooks/use-toast";
+import { validateBranchSelection, createDepositData, createHandoverData, createInvoiceData } from "@/utils/formHandlers";
 
 export const AdminPanel = () => {
   const { formState, setters, resetForm, populateForm } = useAdminFormState();
-  const { processedRecords, handleDelete, saveRecord, updateRecord } = useRecordsManager();
+  const { createRecord, updateRecord, deleteRecord } = useRecordMutations();
   const { toast } = useToast();
-
-  const validateBranchSelection = () => {
-    if (!formState.selectedBranch) {
-      toast({
-        title: "Error",
-        description: "Please select a branch",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
 
   const handleSubmitDeposit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateBranchSelection()) return;
+    if (!validateBranchSelection(formState.selectedBranch, toast)) return;
 
-    const depositData = {
-      branch_id: formState.selectedBranch,
-      date: formState.depositDate,
-      deposit_status: formState.depositStatus.toLowerCase(),
-      deposit_odoo_session: formState.depositOdooSession,
-      deposit_notes: formState.depositNotes,
-      deposit_updated_at: new Date().toISOString(),
-    };
-
+    const depositData = createDepositData(formState);
+    
     if (formState.isEditing && formState.editingId) {
       updateRecord({
         id: formState.editingId,
         ...depositData
       });
     } else {
-      saveRecord(depositData);
+      createRecord(depositData);
     }
     resetForm();
   };
 
   const handleSubmitHandover = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateBranchSelection()) return;
+    if (!validateBranchSelection(formState.selectedBranch, toast)) return;
 
-    const handoverData = {
-      branch_id: formState.selectedBranch,
-      date: formState.handoverDate,
-      handover_status: formState.handoverStatus.toLowerCase(),
-      handover_odoo_session: formState.handoverOdooSession,
-      handover_notes: formState.handoverNotes,
-      handover_updated_at: new Date().toISOString(),
-    };
+    const handoverData = createHandoverData(formState);
 
     if (formState.isEditing && formState.editingId) {
       updateRecord({
@@ -72,21 +47,16 @@ export const AdminPanel = () => {
         ...handoverData
       });
     } else {
-      saveRecord(handoverData);
+      createRecord(handoverData);
     }
     resetForm();
   };
 
   const handleSubmitInvoice = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateBranchSelection()) return;
+    if (!validateBranchSelection(formState.selectedBranch, toast)) return;
 
-    const invoiceData = {
-      branch_id: formState.selectedBranch,
-      date: formState.invoiceDate,
-      invoice_status: formState.invoiceStatus.toLowerCase(),
-      invoice_updated_at: new Date().toISOString(),
-    };
+    const invoiceData = createInvoiceData(formState);
 
     if (formState.isEditing && formState.editingId) {
       updateRecord({
@@ -94,13 +64,9 @@ export const AdminPanel = () => {
         ...invoiceData
       });
     } else {
-      saveRecord(invoiceData);
+      createRecord(invoiceData);
     }
     resetForm();
-  };
-
-  const handleEdit = (record: any) => {
-    populateForm(record);
   };
 
   return (
@@ -123,9 +89,9 @@ export const AdminPanel = () => {
           <RecordsTab
             {...formState}
             {...setters}
-            processedRecords={processedRecords}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            processedRecords={[]}
+            onEdit={populateForm}
+            onDelete={deleteRecord}
             onSubmitDeposit={handleSubmitDeposit}
             onSubmitHandover={handleSubmitHandover}
             onSubmitInvoice={handleSubmitInvoice}
