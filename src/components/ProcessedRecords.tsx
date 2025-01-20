@@ -55,6 +55,15 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
     }
   };
 
+  const StatusDot = ({ status }: { status: string }) => {
+    const colorClass = status.toLowerCase() === 'approved' ? 'bg-green-600' :
+                      status.toLowerCase() === 'missing' ? 'bg-red-600' :
+                      'bg-yellow-600';
+    return (
+      <span className={`inline-block w-2 h-2 rounded-full ${colorClass}`} />
+    );
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Processed Records</h2>
@@ -63,7 +72,14 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
           <AccordionItem key={record.id} value={record.id}>
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center justify-between w-full">
-                <span>{record.branchName}</span>
+                <div className="flex items-center gap-4">
+                  <span>{record.branchName}</span>
+                  <div className="flex items-center gap-2">
+                    <StatusDot status={record.depositStatus} />
+                    <StatusDot status={record.handoverStatus} />
+                    <StatusDot status={record.invoiceStatus} />
+                  </div>
+                </div>
                 <span className="text-sm text-muted-foreground">
                   {record.date}
                 </span>
