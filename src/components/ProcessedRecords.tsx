@@ -67,13 +67,13 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
                   <span>{record.branchName}</span>
                   <div className="flex items-center gap-4">
                     <span className={getStatusColor(record.depositStatus)}>
-                      Deposit: {record.depositStatus}
+                      Deposit
                     </span>
                     <span className={getStatusColor(record.handoverStatus)}>
-                      Handover: {record.handoverStatus}
+                      Handover
                     </span>
                     <span className={getStatusColor(record.invoiceStatus)}>
-                      Invoice: {record.invoiceStatus}
+                      Invoice
                     </span>
                   </div>
                 </div>
