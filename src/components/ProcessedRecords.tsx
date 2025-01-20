@@ -42,6 +42,19 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return 'text-green-600';
+      case 'missing':
+        return 'text-red-600';
+      case 'pending':
+        return 'text-yellow-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Processed Records</h2>
@@ -61,7 +74,7 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
                 <div className="grid grid-cols-2 gap-2">
                   <div className="text-sm font-medium">Deposit Slip</div>
                   <div className="text-sm">
-                    Status: {record.depositStatus}
+                    Status: <span className={getStatusColor(record.depositStatus)}>{record.depositStatus}</span>
                     <br />
                     Odoo Session: {record.depositOdooSession}
                     <br />
@@ -72,7 +85,7 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
                   
                   <div className="text-sm font-medium">Handover</div>
                   <div className="text-sm">
-                    Status: {record.handoverStatus}
+                    Status: <span className={getStatusColor(record.handoverStatus)}>{record.handoverStatus}</span>
                     <br />
                     Odoo Session: {record.handoverOdooSession}
                     <br />
@@ -83,7 +96,7 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
                   
                   <div className="text-sm font-medium">Invoice</div>
                   <div className="text-sm">
-                    Status: {record.invoiceStatus}
+                    Status: <span className={getStatusColor(record.invoiceStatus)}>{record.invoiceStatus}</span>
                     <br />
                     <span className="text-xs text-muted-foreground">
                       Last updated: {formatDate(record.invoice_updated_at)}

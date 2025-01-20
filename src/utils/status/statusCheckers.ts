@@ -19,23 +19,14 @@ export const isRejectedStatus = (type: string, status: string | null) => {
   if (!status) return false;
   
   const normalizedStatus = status.toLowerCase().trim();
+  const isMissing = normalizedStatus === 'missing';
   
-  if (type === 'invoices') {
-    const isMissingInvoices = normalizedStatus.includes('missing');
-    console.log(`Invoice status check:`, { 
-      status, 
-      normalizedStatus,
-      isMissingInvoices,
-      type
-    });
-    return isMissingInvoices;
-  }
-  
-  const isRejected = normalizedStatus === 'rejected';
-  console.log(`Regular rejected status check:`, { 
+  console.log(`Status check:`, { 
     status, 
     normalizedStatus,
-    isRejected 
+    isMissing,
+    type
   });
-  return isRejected;
+  
+  return isMissing;
 };
