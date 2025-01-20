@@ -1,9 +1,11 @@
 import { FormState } from "@/types/admin";
-import { useToast } from "@/hooks/use-toast";
+import type { ToastProps } from "@/components/ui/toast";
 
-export const validateBranchSelection = (selectedBranch: string, toast: ReturnType<typeof useToast>) => {
+type ToastFunction = (props: ToastProps) => void;
+
+export const validateBranchSelection = (selectedBranch: string, toastFn: ToastFunction) => {
   if (!selectedBranch) {
-    toast({
+    toastFn({
       title: "Error",
       description: "Please select a branch",
       variant: "destructive",
