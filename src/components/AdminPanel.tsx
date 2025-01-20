@@ -14,23 +14,86 @@ import { useToast } from "@/hooks/use-toast";
 
 export const AdminPanel = () => {
   const { formState, setters, resetForm, populateForm } = useAdminFormState();
-  const { processedRecords, handleDelete, saveRecord } = useRecordsManager();
+  const { processedRecords, handleDelete, saveRecord, updateRecord } = useRecordsManager();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validateBranchSelection = () => {
     if (!formState.selectedBranch) {
       toast({
         title: "Error",
         description: "Please select a branch",
         variant: "destructive",
       });
-      return;
+      return false;
     }
+    return true;
+  };
 
-    saveRecord(formState, formState.isEditing, formState.editingId);
-    resetForm();
+  const handleSubmitDeposit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateBranchSelection()) return;
+
+    const depositData = {
+      deposit_status: formState.depositStatus.toLowerCase(),
+      deposit_date: formState.depositDate,
+      deposit_odoo_session: formState.depositOdooSession,
+      deposit_notes: formState.depositNotes,
+      deposit_updated_at: new Date().toISOString(),
+    };
+
+    if (formState.isEditing) {
+      updateRecord(formState.editingId!, { ...depositData });
+    } else {
+      saveRecord({
+        ...depositData,
+        branch_id: formState.selectedBranch,
+        date: formState.depositDate,
+      });
+    }
+  };
+
+  const handleSubmitHandover = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateBranchSelection()) return;
+
+    const handoverData = {
+      handover_status: formState.handoverStatus.toLowerCase(),
+      handover_date: formState.handoverDate,
+      handover_odoo_session: formState.handoverOdooSession,
+      handover_notes: formState.handoverNotes,
+      handover_updated_at: new Date().toISOString(),
+    };
+
+    if (formState.isEditing) {
+      updateRecord(formState.editingId!, { ...handoverData });
+    } else {
+      saveRecord({
+        ...handoverData,
+        branch_id: formState.selectedBranch,
+        date: formState.handoverDate,
+      });
+    }
+  };
+
+  const handleSubmitInvoice = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateBranchSelection()) return;
+
+    const invoiceData = {
+      invoice_status: formState.invoiceStatus.toLowerCase(),
+      invoice_date: formState.invoiceDate,
+      invoice_updated_at: new Date().toISOString(),
+    };
+
+    if (formState.isEditing) {
+      updateRecord(formState.editingId!, { ...invoiceData });
+    } else {
+      saveRecord({
+        ...invoiceData,
+        branch_id: formState.selectedBranch,
+        date: formState.invoiceDate,
+      });
+    }
   };
 
   const handleEdit = (record: any) => {
@@ -60,7 +123,9 @@ export const AdminPanel = () => {
             processedRecords={processedRecords}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onSubmit={handleSubmit}
+            onSubmitDeposit={handleSubmitDeposit}
+            onSubmitHandover={handleSubmitHandover}
+            onSubmitInvoice={handleSubmitInvoice}
           />
         </TabsContent>
       </Tabs>

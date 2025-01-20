@@ -1,6 +1,5 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -40,7 +39,9 @@ interface RecordFormProps {
   setInvoiceDate: (value: string) => void;
   invoiceStatus: string;
   setInvoiceStatus: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmitDeposit: (e: React.FormEvent) => void;
+  onSubmitHandover: (e: React.FormEvent) => void;
+  onSubmitInvoice: (e: React.FormEvent) => void;
 }
 
 export const RecordForm = ({
@@ -67,7 +68,9 @@ export const RecordForm = ({
   setInvoiceDate,
   invoiceStatus,
   setInvoiceStatus,
-  onSubmit,
+  onSubmitDeposit,
+  onSubmitHandover,
+  onSubmitInvoice,
 }: RecordFormProps) => {
   const { toast } = useToast();
   const { data: branches = [] } = useQuery({
@@ -77,7 +80,7 @@ export const RecordForm = ({
 
   return (
     <Card className="p-6">
-      <form onSubmit={onSubmit} className="space-y-8">
+      <div className="space-y-8">
         <div className="space-y-2">
           <Label htmlFor="branch">Branch</Label>
           <Select value={selectedBranch} onValueChange={setSelectedBranch}>
@@ -94,39 +97,41 @@ export const RecordForm = ({
           </Select>
         </div>
 
-        <DepositSlipForm
-          depositDate={depositDate}
-          setDepositDate={setDepositDate}
-          depositOdooSession={depositOdooSession}
-          setDepositOdooSession={setDepositOdooSession}
-          depositStatus={depositStatus.toLowerCase()}
-          setDepositStatus={(value) => setDepositStatus(value.toLowerCase())}
-          depositNotes={depositNotes}
-          setDepositNotes={setDepositNotes}
-        />
+        <form onSubmit={onSubmitDeposit} className="space-y-6">
+          <DepositSlipForm
+            depositDate={depositDate}
+            setDepositDate={setDepositDate}
+            depositOdooSession={depositOdooSession}
+            setDepositOdooSession={setDepositOdooSession}
+            depositStatus={depositStatus.toLowerCase()}
+            setDepositStatus={(value) => setDepositStatus(value.toLowerCase())}
+            depositNotes={depositNotes}
+            setDepositNotes={setDepositNotes}
+          />
+        </form>
 
-        <HandoverForm
-          handoverDate={handoverDate}
-          setHandoverDate={setHandoverDate}
-          handoverOdooSession={handoverOdooSession}
-          setHandoverOdooSession={setHandoverOdooSession}
-          handoverStatus={handoverStatus.toLowerCase()}
-          setHandoverStatus={(value) => setHandoverStatus(value.toLowerCase())}
-          handoverNotes={handoverNotes}
-          setHandoverNotes={setHandoverNotes}
-        />
+        <form onSubmit={onSubmitHandover} className="space-y-6">
+          <HandoverForm
+            handoverDate={handoverDate}
+            setHandoverDate={setHandoverDate}
+            handoverOdooSession={handoverOdooSession}
+            setHandoverOdooSession={setHandoverOdooSession}
+            handoverStatus={handoverStatus.toLowerCase()}
+            setHandoverStatus={(value) => setHandoverStatus(value.toLowerCase())}
+            handoverNotes={handoverNotes}
+            setHandoverNotes={setHandoverNotes}
+          />
+        </form>
 
-        <InvoiceForm
-          invoiceDate={invoiceDate}
-          setInvoiceDate={setInvoiceDate}
-          invoiceStatus={invoiceStatus.toLowerCase()}
-          setInvoiceStatus={(value) => setInvoiceStatus(value.toLowerCase())}
-        />
-        
-        <Button type="submit" className="w-full md:w-auto">
-          {isEditing ? "Update Record" : "Save Record"}
-        </Button>
-      </form>
+        <form onSubmit={onSubmitInvoice} className="space-y-6">
+          <InvoiceForm
+            invoiceDate={invoiceDate}
+            setInvoiceDate={setInvoiceDate}
+            invoiceStatus={invoiceStatus.toLowerCase()}
+            setInvoiceStatus={(value) => setInvoiceStatus(value.toLowerCase())}
+          />
+        </form>
+      </div>
     </Card>
   );
 };

@@ -41,7 +41,9 @@ interface RecordsTabProps {
   processedRecords: Record[];
   onEdit: (record: Record) => void;
   onDelete: (recordId: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmitDeposit: (e: React.FormEvent) => void;
+  onSubmitHandover: (e: React.FormEvent) => void;
+  onSubmitInvoice: (e: React.FormEvent) => void;
 }
 
 export const RecordsTab = ({
@@ -71,7 +73,9 @@ export const RecordsTab = ({
   processedRecords,
   onEdit,
   onDelete,
-  onSubmit,
+  onSubmitDeposit,
+  onSubmitHandover,
+  onSubmitInvoice,
 }: RecordsTabProps) => {
   return (
     <div className="space-y-8">
@@ -99,7 +103,9 @@ export const RecordsTab = ({
         setInvoiceDate={setInvoiceDate}
         invoiceStatus={invoiceStatus}
         setInvoiceStatus={setInvoiceStatus}
-        onSubmit={onSubmit}
+        onSubmitDeposit={onSubmitDeposit}
+        onSubmitHandover={onSubmitHandover}
+        onSubmitInvoice={onSubmitInvoice}
       />
 
       <Card className="p-6">

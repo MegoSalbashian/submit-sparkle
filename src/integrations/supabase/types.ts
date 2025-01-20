@@ -35,11 +35,14 @@ export type Database = {
           deposit_notes: string | null
           deposit_odoo_session: string | null
           deposit_status: string
+          deposit_updated_at: string | null
           handover_notes: string | null
           handover_odoo_session: string | null
           handover_status: string
+          handover_updated_at: string | null
           id: string
           invoice_status: string
+          invoice_updated_at: string | null
         }
         Insert: {
           branch_id: string
@@ -48,11 +51,14 @@ export type Database = {
           deposit_notes?: string | null
           deposit_odoo_session?: string | null
           deposit_status: string
+          deposit_updated_at?: string | null
           handover_notes?: string | null
           handover_odoo_session?: string | null
           handover_status: string
+          handover_updated_at?: string | null
           id?: string
           invoice_status: string
+          invoice_updated_at?: string | null
         }
         Update: {
           branch_id?: string
@@ -61,11 +67,14 @@ export type Database = {
           deposit_notes?: string | null
           deposit_odoo_session?: string | null
           deposit_status?: string
+          deposit_updated_at?: string | null
           handover_notes?: string | null
           handover_odoo_session?: string | null
           handover_status?: string
+          handover_updated_at?: string | null
           id?: string
           invoice_status?: string
+          invoice_updated_at?: string | null
         }
         Relationships: [
           {
