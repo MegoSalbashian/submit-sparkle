@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Trash2 } from "lucide-react";
-import { format, isValid } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 
 interface ProcessedRecord {
   id: string;
@@ -55,11 +55,18 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
     }
   };
 
+  // Sort records by date in descending order
+  const sortedRecords = [...records].sort((a, b) => {
+    const dateA = parseISO(a.date);
+    const dateB = parseISO(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Processed Records</h2>
       <Accordion type="single" collapsible className="w-full">
-        {records.map((record) => (
+        {sortedRecords.map((record) => (
           <AccordionItem key={record.id} value={record.id}>
             <AccordionTrigger className="hover:no-underline">
               <div className="flex items-center justify-between w-full">
