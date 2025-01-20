@@ -7,6 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Trash2 } from "lucide-react";
+import { format } from "date-fns";
 
 interface ProcessedRecord {
   id: string;
@@ -17,6 +18,9 @@ interface ProcessedRecord {
   depositStatus: string;
   handoverStatus: string;
   invoiceStatus: string;
+  deposit_updated_at?: string;
+  handover_updated_at?: string;
+  invoice_updated_at?: string;
 }
 
 interface ProcessedRecordsProps {
@@ -26,6 +30,11 @@ interface ProcessedRecordsProps {
 }
 
 export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecordsProps) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Not submitted";
+    return format(new Date(dateString), "MMM d, yyyy HH:mm");
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold">Processed Records</h2>
@@ -48,6 +57,10 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
                     Status: {record.depositStatus}
                     <br />
                     Odoo Session: {record.depositOdooSession}
+                    <br />
+                    <span className="text-xs text-muted-foreground">
+                      Last updated: {formatDate(record.deposit_updated_at)}
+                    </span>
                   </div>
                   
                   <div className="text-sm font-medium">Handover</div>
@@ -55,11 +68,19 @@ export const ProcessedRecords = ({ records, onEdit, onDelete }: ProcessedRecords
                     Status: {record.handoverStatus}
                     <br />
                     Odoo Session: {record.handoverOdooSession}
+                    <br />
+                    <span className="text-xs text-muted-foreground">
+                      Last updated: {formatDate(record.handover_updated_at)}
+                    </span>
                   </div>
                   
                   <div className="text-sm font-medium">Invoice</div>
                   <div className="text-sm">
                     Status: {record.invoiceStatus}
+                    <br />
+                    <span className="text-xs text-muted-foreground">
+                      Last updated: {formatDate(record.invoice_updated_at)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex gap-2">

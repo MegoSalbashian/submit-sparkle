@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { getBranches } from "@/services/branchService";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -108,6 +109,9 @@ export const RecordForm = ({
             depositNotes={depositNotes}
             setDepositNotes={setDepositNotes}
           />
+          <Button type="submit" className="w-full">
+            Submit Deposit Record
+          </Button>
         </form>
 
         <form onSubmit={onSubmitHandover} className="space-y-6">
@@ -121,6 +125,9 @@ export const RecordForm = ({
             handoverNotes={handoverNotes}
             setHandoverNotes={setHandoverNotes}
           />
+          <Button type="submit" className="w-full">
+            Submit Handover Record
+          </Button>
         </form>
 
         <form onSubmit={onSubmitInvoice} className="space-y-6">
@@ -130,6 +137,9 @@ export const RecordForm = ({
             invoiceStatus={invoiceStatus.toLowerCase()}
             setInvoiceStatus={(value) => setInvoiceStatus(value.toLowerCase())}
           />
+          <Button type="submit" className="w-full">
+            Submit Invoice Record
+          </Button>
         </form>
       </div>
     </Card>
