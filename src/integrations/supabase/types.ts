@@ -34,14 +34,14 @@ export type Database = {
           date: string
           deposit_notes: string | null
           deposit_odoo_session: string | null
-          deposit_status: string
+          deposit_status: string | null
           deposit_updated_at: string | null
           handover_notes: string | null
           handover_odoo_session: string | null
-          handover_status: string
+          handover_status: string | null
           handover_updated_at: string | null
           id: string
-          invoice_status: string
+          invoice_status: string | null
           invoice_updated_at: string | null
         }
         Insert: {
@@ -50,14 +50,14 @@ export type Database = {
           date: string
           deposit_notes?: string | null
           deposit_odoo_session?: string | null
-          deposit_status: string
+          deposit_status?: string | null
           deposit_updated_at?: string | null
           handover_notes?: string | null
           handover_odoo_session?: string | null
-          handover_status: string
+          handover_status?: string | null
           handover_updated_at?: string | null
           id?: string
-          invoice_status: string
+          invoice_status?: string | null
           invoice_updated_at?: string | null
         }
         Update: {
@@ -66,14 +66,14 @@ export type Database = {
           date?: string
           deposit_notes?: string | null
           deposit_odoo_session?: string | null
-          deposit_status?: string
+          deposit_status?: string | null
           deposit_updated_at?: string | null
           handover_notes?: string | null
           handover_odoo_session?: string | null
-          handover_status?: string
+          handover_status?: string | null
           handover_updated_at?: string | null
           id?: string
-          invoice_status?: string
+          invoice_status?: string | null
           invoice_updated_at?: string | null
         }
         Relationships: [

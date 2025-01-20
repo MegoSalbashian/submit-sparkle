@@ -34,6 +34,8 @@ export const AdminPanel = () => {
     if (!validateBranchSelection()) return;
 
     const depositData = {
+      branch_id: formState.selectedBranch,
+      date: formState.depositDate,
       deposit_status: formState.depositStatus.toLowerCase(),
       deposit_odoo_session: formState.depositOdooSession,
       deposit_notes: formState.depositNotes,
@@ -46,12 +48,9 @@ export const AdminPanel = () => {
         ...depositData
       });
     } else {
-      saveRecord({
-        ...depositData,
-        branch_id: formState.selectedBranch,
-        date: formState.depositDate,
-      });
+      saveRecord(depositData);
     }
+    resetForm();
   };
 
   const handleSubmitHandover = (e: React.FormEvent) => {
@@ -59,6 +58,8 @@ export const AdminPanel = () => {
     if (!validateBranchSelection()) return;
 
     const handoverData = {
+      branch_id: formState.selectedBranch,
+      date: formState.handoverDate,
       handover_status: formState.handoverStatus.toLowerCase(),
       handover_odoo_session: formState.handoverOdooSession,
       handover_notes: formState.handoverNotes,
@@ -71,12 +72,9 @@ export const AdminPanel = () => {
         ...handoverData
       });
     } else {
-      saveRecord({
-        ...handoverData,
-        branch_id: formState.selectedBranch,
-        date: formState.handoverDate,
-      });
+      saveRecord(handoverData);
     }
+    resetForm();
   };
 
   const handleSubmitInvoice = (e: React.FormEvent) => {
@@ -84,6 +82,8 @@ export const AdminPanel = () => {
     if (!validateBranchSelection()) return;
 
     const invoiceData = {
+      branch_id: formState.selectedBranch,
+      date: formState.invoiceDate,
       invoice_status: formState.invoiceStatus.toLowerCase(),
       invoice_updated_at: new Date().toISOString(),
     };
@@ -94,12 +94,9 @@ export const AdminPanel = () => {
         ...invoiceData
       });
     } else {
-      saveRecord({
-        ...invoiceData,
-        branch_id: formState.selectedBranch,
-        date: formState.invoiceDate,
-      });
+      saveRecord(invoiceData);
     }
+    resetForm();
   };
 
   const handleEdit = (record: any) => {
