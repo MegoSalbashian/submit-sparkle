@@ -41,8 +41,11 @@ export const AdminPanel = () => {
       deposit_updated_at: new Date().toISOString(),
     };
 
-    if (formState.isEditing) {
-      updateRecord(formState.editingId!, { ...depositData });
+    if (formState.isEditing && formState.editingId) {
+      updateRecord({
+        id: formState.editingId,
+        ...depositData
+      });
     } else {
       saveRecord({
         ...depositData,
@@ -64,8 +67,11 @@ export const AdminPanel = () => {
       handover_updated_at: new Date().toISOString(),
     };
 
-    if (formState.isEditing) {
-      updateRecord(formState.editingId!, { ...handoverData });
+    if (formState.isEditing && formState.editingId) {
+      updateRecord({
+        id: formState.editingId,
+        ...handoverData
+      });
     } else {
       saveRecord({
         ...handoverData,
@@ -85,8 +91,11 @@ export const AdminPanel = () => {
       invoice_updated_at: new Date().toISOString(),
     };
 
-    if (formState.isEditing) {
-      updateRecord(formState.editingId!, { ...invoiceData });
+    if (formState.isEditing && formState.editingId) {
+      updateRecord({
+        id: formState.editingId,
+        ...invoiceData
+      });
     } else {
       saveRecord({
         ...invoiceData,
