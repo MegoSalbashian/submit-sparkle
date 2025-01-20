@@ -38,26 +38,51 @@ export const useRecordsManager = (branchId?: string, date?: string) => {
   const createMutation = useMutation({
     mutationFn: async (record: any) => {
       console.log("Creating record:", record);
-      const { data, error } = await supabase
+      
+      // First check if a record exists for this branch and date
+      const { data: existingRecord } = await supabase
         .from("records")
-        .insert(record)
-        .select()
-        .single();
+        .select("*")
+        .eq('branch_id', record.branch_id)
+        .eq('date', record.date)
+        .maybeSingle();
 
-      if (error) {
-        console.error("Error creating record:", error);
-        throw error;
+      if (existingRecord) {
+        // If record exists, update it instead
+        const { data, error } = await supabase
+          .from("records")
+          .update(record)
+          .eq('id', existingRecord.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error updating record:", error);
+          throw error;
+        }
+        return data;
+      } else {
+        // If no record exists, create a new one
+        const { data, error } = await supabase
+          .from("records")
+          .insert(record)
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error creating record:", error);
+          throw error;
+        }
+        return data;
       }
-
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['records'] });
-      toast.success("Record created successfully");
+      toast.success("Record saved successfully");
     },
     onError: (error) => {
       console.error("Mutation error:", error);
-      toast.error("Failed to create record");
+      toast.error("Failed to save record");
     }
   });
 
@@ -119,7 +144,10 @@ export const useRecordsManager = (branchId?: string, date?: string) => {
     handoverOdooSession: record.handover_odoo_session || '',
     depositStatus: record.deposit_status,
     handoverStatus: record.handover_status,
-    invoiceStatus: record.invoice_status
+    invoiceStatus: record.invoice_status,
+    deposit_updated_at: record.deposit_updated_at,
+    handover_updated_at: record.handover_updated_at,
+    invoice_updated_at: record.invoice_updated_at
   }));
 
   return {
