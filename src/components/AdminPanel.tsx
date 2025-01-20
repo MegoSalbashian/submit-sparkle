@@ -12,11 +12,13 @@ import { useAdminFormState } from "@/hooks/useAdminFormState";
 import { useRecordMutations } from "@/hooks/useRecordMutations";
 import { useToast } from "@/hooks/use-toast";
 import { validateBranchSelection, createDepositData, createHandoverData, createInvoiceData } from "@/utils/formHandlers";
+import { useRecordsManager } from "@/hooks/useRecordsManager";
 
 export const AdminPanel = () => {
   const { formState, setters, resetForm, populateForm } = useAdminFormState();
   const { createRecord, updateRecord, deleteRecord } = useRecordMutations();
   const { toast } = useToast();
+  const { processedRecords } = useRecordsManager();
 
   const handleSubmitDeposit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +91,7 @@ export const AdminPanel = () => {
           <RecordsTab
             {...formState}
             {...setters}
-            processedRecords={[]}
+            processedRecords={processedRecords}
             onEdit={populateForm}
             onDelete={deleteRecord}
             onSubmitDeposit={handleSubmitDeposit}
